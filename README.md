@@ -5,7 +5,7 @@ Java message queue using MongoDB as a backend.
 
 This version is a fork from the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java).
 
-This fork contains an upgrade to use the latest MongoDB version with the lated Java Driver (version 3.2.2). Consequently, the code has also been upgraded to the new V3.0 Java API of MongoDB.
+This fork contains an upgrade to use the latest MongoDB version with the latest Java Driver (version 3.2.2). Consequently, the code has also been upgraded to the new V3.0 Java API of MongoDB.
 
 Additionally, I have also added the Fake MongoDB project ([Fongo](https://github.com/fakemongo/fongo)) to be used in the unit tests. Fongo is a standalone mock server simulating 90% of MongoDB completely developed in Java. While it aims to be 100% compatible, this is obviously not easy to achieve and some incompatibilities exist which are also reflected in two unit tests here.
 
