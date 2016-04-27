@@ -1,8 +1,15 @@
 #mongo-queue-java
 [![Build Status](https://travis-ci.org/gaillard/mongo-queue-java.png)](https://travis-ci.org/gaillard/mongo-queue-java)
 
-Java message queue using MongoDB as a backend
-Adheres to the 1.0.0 [specification](https://github.com/dominionenterprises/mongo-queue-specification).
+Java message queue using MongoDB as a backend.
+
+This version is a fork from the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java).
+
+This fork contains an upgrade to use the latest MongoDB version with the lated Java Driver (version 3.2.2). Consequently, the code has also been upgraded to the new V3.0 Java API of MongoDB.
+
+Additionally, I have also added the Fake MongoDB project ([Fongo](https://github.com/fakemongo/fongo)) to be used in the unit tests. Fongo is a standalone mock server simulating 90% of MongoDB completely developed in Java. While it aims to be 100% compatible, this is obviously not easy to achieve and some incompatibilities exist which are also reflected in two unit tests here.
+
+If you want to use the mongo-queue-java together with MongoDB 3 please clone this project and checkout the 'mongo3' branch.
 
 ##Features
 
@@ -14,6 +21,7 @@ Adheres to the 1.0.0 [specification](https://github.com/dominionenterprises/mong
  * Running message timeout and redeliver
  * Atomic acknowledge and send together
  * Easy index creation based only on payload
+ * Upgraded to work with the latest MongoDB 3.2 (checkout branch 'mongo3')
 
 ##Simplest use
 
@@ -36,8 +44,10 @@ public final class Main {
 
 ##Jar
 
-To add the library as a jar simply [Build](#project-build) the project and use the `mongo-queue-java-1.0.0.jar` from the created
+To add the library as a jar simply [Build](#project-build) the project and use the `mongo-queue-java-1.1.0-SNAPSHOT.jar` from the created
 `target` directory!
+
+**TODO:** Promote code to version 1.1.0.
 
 ##Maven (TODO: Add project to Sonar OSS repo)
 
@@ -49,7 +59,7 @@ to your project's `pom.xml` file such as:
 <dependency>
     <groupId>gaillard</groupId>
     <artifactId>mongo-queue-java</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 ...
 ```
@@ -73,3 +83,5 @@ With a checkout of the code get [Maven](http://maven.apache.org) in your PATH an
 ```bash
 mvn clean install
 ```
+
+Alternatively the `mvn clean install` can also be run without a local MongoDB thanks to Fongo.
