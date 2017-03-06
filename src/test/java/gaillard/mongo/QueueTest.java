@@ -37,7 +37,7 @@ public class QueueTest {
     	try {
 			MongoClient client = new MongoClient(new ServerAddress("localhost"), new MongoClientOptions.Builder().serverSelectionTimeout(50).build());
 			String firstDBName = client.listDatabaseNames().first();
-			db = client.getDatabase("testing");
+			db = client.getDatabase(firstDBName);
 			fongo = null;
 			System.out.println("Using local Mongodb");
 		} catch (MongoTimeoutException e) {
@@ -156,7 +156,7 @@ public class QueueTest {
         queue.ensureCountIndex(new Document("another.sub", 1), true);
 
         final ListIndexesIterable<Document> indexes = collection.listIndexes();
-        List<Document> indexInfo = new ArrayList<Document>();
+        List<Document> indexInfo = new ArrayList<>();
         indexInfo = indexes.into(indexInfo);
 
         assertEquals(3, indexInfo.size());

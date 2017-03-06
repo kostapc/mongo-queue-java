@@ -55,13 +55,13 @@ To add the library as a local, per-project dependency use [Maven](http://maven.a
 to your project's `pom.xml` file such as:
 
 ```xml
-...
+
 <dependency>
     <groupId>gaillard</groupId>
     <artifactId>mongo-queue-java</artifactId>
     <version>1.1.0-SNAPSHOT</version>
 </dependency>
-...
+
 ```
 
 ##Documentation
