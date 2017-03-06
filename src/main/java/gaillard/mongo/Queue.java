@@ -4,11 +4,13 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.CommandFailureException;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.UUID;
+
 import org.bson.types.ObjectId;
 
 public final class Queue {
@@ -41,7 +43,7 @@ public final class Queue {
      * Ensure index for get() method
      *
      * @param beforeSort fields in get() call that should be before the sort fields in the index. Should not be null
-     * @param afterSort fields in get() call that should be after the sort fields in the index. Should not be null
+     * @param afterSort  fields in get() call that should be after the sort fields in the index. Should not be null
      */
     public void ensureGetIndex(final BasicDBObject beforeSort, final BasicDBObject afterSort) {
         Objects.requireNonNull(beforeSort);
@@ -77,7 +79,7 @@ public final class Queue {
     /**
      * Ensure index for count() method
      *
-     * @param index fields in count() call. Should not be null
+     * @param index          fields in count() call. Should not be null
      * @param includeRunning whether running was given to count() or not
      */
     public void ensureCountIndex(final BasicDBObject index, final boolean includeRunning) {
@@ -103,8 +105,8 @@ public final class Queue {
     /**
      * Get a non running message from queue with a wait of 3 seconds and poll of 200 milliseconds
      *
-     * @param query query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
-     * invalid {$and: [{...}, {...}]}. Should not be null.
+     * @param query         query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
+     *                      invalid {$and: [{...}, {...}]}. Should not be null.
      * @param resetDuration duration in seconds before this message is considered abandoned and will be given with another call to get()
      * @return message or null
      */
@@ -115,10 +117,10 @@ public final class Queue {
     /**
      * Get a non running message from queue with a poll of 200 milliseconds
      *
-     * @param query query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
-     * invalid {$and: [{...}, {...}]}. Should not be null.
+     * @param query         query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
+     *                      invalid {$and: [{...}, {...}]}. Should not be null.
      * @param resetDuration duration in seconds before this message is considered abandoned and will be given with another call to get()
-     * @param waitDuration duration in milliseconds to keep polling before returning null
+     * @param waitDuration  duration in milliseconds to keep polling before returning null
      * @return message or null
      */
     public BasicDBObject get(final BasicDBObject query, final int resetDuration, final int waitDuration) {
@@ -128,11 +130,11 @@ public final class Queue {
     /**
      * Get a non running message from queue
      *
-     * @param query query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
-     * invalid {$and: [{...}, {...}]}. Should not be null.
+     * @param query         query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
+     *                      invalid {$and: [{...}, {...}]}. Should not be null.
      * @param resetDuration duration in seconds before this message is considered abandoned and will be given with another call to get()
-     * @param waitDuration duration in milliseconds to keep polling before returning null
-     * @param pollDuration duration in milliseconds between poll attempts
+     * @param waitDuration  duration in milliseconds to keep polling before returning null
+     * @param pollDuration  duration in milliseconds between poll attempts
      * @return message or null
      */
     public BasicDBObject get(final BasicDBObject query, final int resetDuration, final int waitDuration, long pollDuration) {
@@ -189,7 +191,7 @@ public final class Queue {
      * Count in queue, running true or false
      *
      * @param query query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
-     * invalid {$and: [{...}, {...}]}. Should not be null
+     *              invalid {$and: [{...}, {...}]}. Should not be null
      * @return count
      */
     public long count(final BasicDBObject query) {
@@ -207,8 +209,8 @@ public final class Queue {
     /**
      * Count in queue
      *
-     * @param query query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
-     * invalid {$and: [{...}, {...}]}. Should not be null
+     * @param query   query where top level fields do not contain operators. Lower level fields can however. eg: valid {a: {$gt: 1}, "b.c": 3},
+     *                invalid {$and: [{...}, {...}]}. Should not be null
      * @param running count running messages or not running
      * @return count
      */
@@ -252,8 +254,8 @@ public final class Queue {
     /**
      * Ack message and send payload to queue, atomically, with 0.0 priority
      *
-     * @param message message to ack received from get(). Should not be null
-     * @param payload payload to send. Should not be null
+     * @param message     message to ack received from get(). Should not be null
+     * @param payload     payload to send. Should not be null
      * @param earliestGet earliest instant that a call to get() can return message. Should not be null
      */
     public void ackSend(final BasicDBObject message, final BasicDBObject payload, final Date earliestGet) {
@@ -263,10 +265,10 @@ public final class Queue {
     /**
      * Ack message and send payload to queue, atomically
      *
-     * @param message message to ack received from get(). Should not be null
-     * @param payload payload to send. Should not be null
+     * @param message     message to ack received from get(). Should not be null
+     * @param payload     payload to send. Should not be null
      * @param earliestGet earliest instant that a call to get() can return message. Should not be null
-     * @param priority priority for order out of get(). 0 is higher priority than 1. Should not be NaN
+     * @param priority    priority for order out of get(). 0 is higher priority than 1. Should not be NaN
      */
     public void ackSend(final BasicDBObject message, final BasicDBObject payload, final Date earliestGet, final double priority) {
         Objects.requireNonNull(message);
@@ -304,7 +306,7 @@ public final class Queue {
     /**
      * Requeue message with 0.0 priority. Same as ackSend() with the same message.
      *
-     * @param message message to requeue received from get(). Should not be null
+     * @param message     message to requeue received from get(). Should not be null
      * @param earliestGet earliest instant that a call to get() can return message. Should not be null
      */
     public void requeue(final BasicDBObject message, final Date earliestGet) {
@@ -314,9 +316,9 @@ public final class Queue {
     /**
      * Requeue message. Same as ackSend() with the same message.
      *
-     * @param message message to requeue received from get(). Should not be null
+     * @param message     message to requeue received from get(). Should not be null
      * @param earliestGet earliest instant that a call to get() can return message. Should not be null
-     * @param priority priority for order out of get(). 0 is higher priority than 1. Should not be NaN
+     * @param priority    priority for order out of get(). 0 is higher priority than 1. Should not be NaN
      */
     public void requeue(final BasicDBObject message, final Date earliestGet, final double priority) {
         Objects.requireNonNull(message);
@@ -347,7 +349,7 @@ public final class Queue {
     /**
      * Send message to queue with 0.0 priority
      *
-     * @param payload payload. Should not be null
+     * @param payload     payload. Should not be null
      * @param earliestGet earliest instant that a call to Get() can return message. Should not be null
      */
     public void send(final BasicDBObject payload, final Date earliestGet) {
@@ -357,9 +359,9 @@ public final class Queue {
     /**
      * Send message to queue
      *
-     * @param payload payload. Should not be null
+     * @param payload     payload. Should not be null
      * @param earliestGet earliest instant that a call to Get() can return message. Should not be null
-     * @param priority priority for order out of Get(). 0 is higher priority than 1. Should not be NaN
+     * @param priority    priority for order out of Get(). 0 is higher priority than 1. Should not be NaN
      */
     public void send(final BasicDBObject payload, final Date earliestGet, final double priority) {
         Objects.requireNonNull(payload);
