@@ -1,18 +1,13 @@
 package gaillard.mongo;
 
 import com.github.fakemongo.Fongo;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoTimeoutException;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -27,28 +22,41 @@ import org.junit.Before;
 
 public class QueueTest {
 
-	private Fongo fongo;
+    private static final String COLLECTION_NAME = "messages";
+
     private MongoCollection<Document> collection;
     private Queue queue;
+    private boolean isMock = false;
 
     @Before
     public void setup() throws UnknownHostException {
+        MongoConnectionParams mongoParams = new MongoConnectionParams("src/test/resources/mongodb.properties");
     	MongoDatabase db = null;
     	try {
-			MongoClient client = new MongoClient(new ServerAddress("localhost"), new MongoClientOptions.Builder().serverSelectionTimeout(50).build());
-			String firstDBName = client.listDatabaseNames().first();
-			db = client.getDatabase(firstDBName);
-			fongo = null;
+    	    ServerAddress serverAddress = new ServerAddress(mongoParams.getMongoDBUrl());
+            MongoCredential credential = MongoCredential.createScramSha1Credential(
+                mongoParams.getMongoDBUser(),
+                mongoParams.getMongoDBDB(),
+                mongoParams.getMongoDBPassword().toCharArray()
+            );
+			MongoClient client = new MongoClient(
+                    Collections.singletonList(serverAddress),
+                    Collections.singletonList(credential),
+                    new MongoClientOptions.Builder().serverSelectionTimeout(50).build()
+            );
+			db = client.getDatabase(mongoParams.getMongoDBDB());
+
 			System.out.println("Using local Mongodb");
 		} catch (MongoTimeoutException e) {
 			System.out.println("MongoTimeoutException caught");
 		}
     	if(db == null) {
     		System.out.println("Reverting to embedded Fongo...");
-    		fongo = new Fongo("Test Queue DB");
-    		db = fongo.getDatabase("testing");
+    		Fongo fongo = new Fongo("Test Queue DB");
+    		db = fongo.getDatabase(mongoParams.getMongoDBDB());
+    		isMock = true;
     	}
-		collection = db.getCollection("messages");
+		collection = db.getCollection(COLLECTION_NAME);
         collection.drop();
 
         queue = new Queue(collection);
@@ -71,7 +79,7 @@ public class QueueTest {
         // There is some strange behavior when using Fongo since it will return five indexes instead of four
         // when using a real MongoDB. To pass this test, we will have to accomodate for that.
         int expected = 0;
-        if(fongo == null) {
+        if(!isMock) {
         	expected = 4;
         } else {
         	expected = 5;
@@ -117,7 +125,7 @@ public class QueueTest {
 
     @Test(expected = RuntimeException.class)
     public void ensureGetIndex_tooLongCollectionName() throws UnknownHostException {
-    	if(fongo != null) {
+    	if(isMock) {
     		// this does not work with Fongo, so we simulate the outcome
     		throw new RuntimeException();
     	}
@@ -125,7 +133,7 @@ public class QueueTest {
         final String collectionName = "messages01234567890123456789012345678901234567890123456789"
                 + "012345678901234567890123456789012345678901234567890123456789012";
 
-        collection = fongo.getDatabase("testing").getCollection(collectionName);
+        //collection = fongo.getDatabase("testing").getCollection(collectionName);
         queue = new Queue(collection);
         queue.ensureGetIndex();
     }
