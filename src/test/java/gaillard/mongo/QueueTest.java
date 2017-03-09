@@ -30,7 +30,7 @@ public class QueueTest {
 
     @Before
     public void setup() throws UnknownHostException {
-        MongoConnectionParams mongoParams = new MongoConnectionParams("src/test/resources/mongodb.properties");
+        MongoConnectionParams mongoParams = new MongoConnectionParams("mongodb.properties");
     	MongoDatabase db = null;
     	try {
     	    ServerAddress serverAddress = new ServerAddress(mongoParams.getMongoDBUrl());

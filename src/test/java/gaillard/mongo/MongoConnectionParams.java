@@ -24,8 +24,7 @@ public class MongoConnectionParams {
     public MongoConnectionParams(String propertiesFile) {
         Properties properties = new Properties();
         try {
-            properties.load(Files.newInputStream(Paths.get(propertiesFile)));
-            //properties.load(getClass().getResourceAsStream(propertiesFile));
+            properties.load(getClass().getResourceAsStream(propertiesFile));
             init(properties);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
