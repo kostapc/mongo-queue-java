@@ -60,12 +60,6 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-            <properties>
-                <default.mongodb.uri>${default.mongodb.uri}</default.mongodb.uri>
-                <default.mongodb.database>${default.mongodb.database}</default.mongodb.database>
-                <default.mongodb.user>${default.mongodb.user}</default.mongodb.user>
-                <default.mongodb.password>default.mongodb.password</default.mongodb.password>
-            </properties>
         </profile>
     </profiles>
 
@@ -99,6 +93,9 @@
             <testResource>
                 <directory>src/test/resources</directory>
                 <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
             </testResource>
         </testResources>
 
