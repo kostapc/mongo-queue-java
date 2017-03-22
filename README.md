@@ -11,7 +11,7 @@ Additionally, I have also added the Fake MongoDB project ([Fongo](https://github
 
 If you want to use the mongo-queue-java together with MongoDB 3 please clone this project and checkout the 'mongo3' branch.
 
-##Features
+## Features
 
  * Message selection and/or count via MongoDB query
  * Distributes across machines via MongoDB
@@ -23,7 +23,7 @@ If you want to use the mongo-queue-java together with MongoDB 3 please clone thi
  * Easy index creation based only on payload
  * Upgraded to work with the latest MongoDB 3.2 (checkout branch 'mongo3')
 
-##Simplest use
+## Simplest use
 
 ```java
 import com.mongodb.BasicDBObject;
@@ -42,14 +42,12 @@ public final class Main {
 }
 ```
 
-##Jar
+## Jar
 
 To add the library as a jar simply [Build](#project-build) the project and use the `mongo-queue-java-1.1.0-SNAPSHOT.jar` from the created
 `target` directory!
 
-**TODO:** Promote code to version 1.1.0.
-
-##Maven (TODO: Add project to Sonar OSS repo)
+## Maven (TODO: Add project to Sonar OSS repo)
 
 To add the library as a local, per-project dependency use [Maven](http://maven.apache.org)! Simply add a dependency on
 to your project's `pom.xml` file such as:
@@ -59,23 +57,23 @@ to your project's `pom.xml` file such as:
 <dependency>
     <groupId>gaillard</groupId>
     <artifactId>mongo-queue-java</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
 </dependency>
 
 ```
 
-##Documentation
+## Documentation
 
 Found in the [source](src/main/java/gaillard/mongo/Queue.java) itself, take a look!
 
-##Contact
+## Contact
 
 Developers may be contacted at:
 
  * [Pull Requests](https://github.com/gaillard/mongo-queue-java/pulls)
  * [Issues](https://github.com/gaillard/mongo-queue-java/issues)
 
-##Project Build
+## Project Build
 
 Install and start [mongodb](http://www.mongodb.org).
 With a checkout of the code get [Maven](http://maven.apache.org) in your PATH and run:
