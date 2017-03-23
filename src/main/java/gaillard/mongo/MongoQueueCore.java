@@ -16,11 +16,11 @@ import java.util.UUID;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-public final class QueueCore {
+public final class MongoQueueCore {
 
     private final MongoCollection<Document> collection;
 
-    public QueueCore(final MongoCollection<Document> collection) {
+    public MongoQueueCore(final MongoCollection<Document> collection) {
         Objects.requireNonNull(collection);
 
         this.collection = collection;
