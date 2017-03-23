@@ -25,7 +25,7 @@ public class QueueTest {
     private static final String COLLECTION_NAME = "messages";
 
     private MongoCollection<Document> collection;
-    private Queue queue;
+    private QueueCore queue;
     private boolean isMock = false;
 
     @Before
@@ -59,12 +59,12 @@ public class QueueTest {
 		collection = db.getCollection(COLLECTION_NAME);
         collection.drop();
 
-        queue = new Queue(collection);
+        queue = new QueueCore(collection);
     }
 
     @Test(expected = NullPointerException.class)
     public void construct_nullCollection() {
-        new Queue(null);
+        new QueueCore(null);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class QueueTest {
                 + "012345678901234567890123456789012345678901234567890123456789012";
 
         //collection = fongo.getDatabase("testing").getCollection(collectionName);
-        queue = new Queue(collection);
+        queue = new QueueCore(collection);
         queue.ensureGetIndex();
     }
 

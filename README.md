@@ -1,4 +1,4 @@
-#mongo-queue-java
+# mongo-queue-java
 [![Build Status](https://travis-ci.org/gaillard/mongo-queue-java.png)](https://travis-ci.org/gaillard/mongo-queue-java)
 
 Java message queue using MongoDB as a backend.

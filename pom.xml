@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>gaillard</groupId>
-    <artifactId>mongo-queue-java</artifactId>
+    <artifactId>mongo-queueCore-java</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -15,6 +15,7 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>3.2.2</version>
+            <scope>provided</scope>
         </dependency>
         
         <dependency>
