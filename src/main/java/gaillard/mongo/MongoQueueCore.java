@@ -170,7 +170,7 @@ public final class MongoQueueCore {
 
         while (true) {
             // final Document message = (Document) collection.findAndModify(builtQuery, fields, sort, false, update, true, false);
-        	FindOneAndUpdateOptions opts = new FindOneAndUpdateOptions().sort(sort).upsert(false).returnDocument(ReturnDocument.AFTER).projection(fields);
+            FindOneAndUpdateOptions opts = new FindOneAndUpdateOptions().sort(sort).upsert(false).returnDocument(ReturnDocument.AFTER).projection(fields);
             final Document message = (Document) collection.findOneAndUpdate(builtQuery, update, opts);
             if (message != null) {
                 final ObjectId id = message.getObjectId("_id");
@@ -392,7 +392,7 @@ public final class MongoQueueCore {
                 //creating an index with different name and same spec does nothing.
                 //so we use any generated name, and then find the right spec after we have called, and just go with that name.
 
-            	IndexOptions iOpts = new IndexOptions().background(true).name(name);
+                IndexOptions iOpts = new IndexOptions().background(true).name(name);
                 collection.createIndex(index, iOpts);
 
                 for (final Document existingIndex : collection.listIndexes()) {

@@ -1,0 +1,125 @@
+package ru.infon.queue.mongo;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.Document;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.IOException;
+
+/**
+ * 27.03.2017
+ * @author KostaPC
+ * Copyright (c) 2017 Infon. All rights reserved.
+ */
+public class SerializationTest {
+
+    @Test
+    public void testDefaultSerializer() {
+        JustPojo pojo = new JustPojo(13,"_1_3_!");
+        MongoMorphiaSerialiser<JustPojo> serialiser = new MongoMorphiaSerialiser<>(JustPojo.class);
+        Document bsonDocument = serialiser.serialize(pojo);
+
+        System.out.println(bsonDocument);
+
+        JustPojo processedPojo = serialiser.deserialize(bsonDocument);
+
+        System.out.println("processed \n:"+processedPojo);
+
+        Assert.assertEquals(pojo, processedPojo);
+    }
+
+    private double testConvert(int iterations) {
+        long testTime = 0;
+        IncrementalAverage mean = new IncrementalAverage();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerSubtypes(JustPojo.class);
+
+        for (int i = 0; i < iterations; i++) {
+            long time = System.nanoTime();
+            JustPojo pojo = new JustPojo(i, "_" + i + "_!");
+            JsonNode node = mapper.valueToTree(pojo);
+            Document document = mapper.convertValue(node, Document.class);
+            JustPojo result = mapper.convertValue(document, JustPojo.class);
+            testTime = System.nanoTime() - time;
+            mean.increment(testTime);
+            Assert.assertEquals(pojo, result);
+        }
+
+        return mean.getResult();
+    }
+
+    private double testReparse(int iterations) {
+        long testTime = 0;
+        IncrementalAverage mean = new IncrementalAverage();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        for (int i = 0; i < iterations; i++) {
+            long time = System.nanoTime();
+            JustPojo pojo = new JustPojo(i, "_" + i + "_!");
+            JsonNode node = mapper.valueToTree(pojo);
+            Document document = Document.parse(node.toString());
+            JustPojo result;
+            try {
+                result = mapper.readValue(document.toJson(), JustPojo.class);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+            testTime = System.nanoTime() - time;
+            mean.increment(testTime);
+            Assert.assertEquals(pojo, result);
+        }
+
+        return mean.getResult();
+    }
+
+    @Test
+    public void conversionSpeedTest() throws IOException {
+
+        int iterations = 10;
+        long warmupTime = 10000;
+
+        while (warmupTime>0) {
+            long time = System.currentTimeMillis();
+            testConvert(iterations);
+            testReparse(iterations);
+            time = System.currentTimeMillis()-time;
+            warmupTime -= time;
+        }
+
+        {
+            double result = testReparse(iterations);
+            System.out.println("avg nano time convert " + result + "( " + Math.round(result / 1000) + " )");
+        }
+
+        {
+            double result = testReparse(iterations);
+            System.out.println("avg nano time reparse " + result + "( " + Math.round(result / 1000) + " )");
+        }
+    }
+
+
+
+    class IncrementalAverage {
+
+        int count = 0;
+        double prevAvg = 0;
+
+        void increment(double value) {
+            count++;
+            prevAvg = getAvg(prevAvg, value, count);
+        }
+
+        private double getAvg(double prev_avg, double x, int n) {
+            return (prev_avg*n + x)/(n+1);
+        }
+
+        double getResult() {
+            return prevAvg;
+        }
+
+    }
+}

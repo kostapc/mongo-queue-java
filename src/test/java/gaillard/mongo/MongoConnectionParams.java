@@ -16,13 +16,15 @@ public class MongoConnectionParams {
     private static final String MONGO_DB_USER = "default.mongodb.user";
     private static final String MONGO_DB_PASSWORD = "default.mongodb.password";
 
+    private Properties properties;
+
     private String mongoDBUrl;
     private String mongoDBDB;
     private String mongoDBUser;
     private String mongoDBPassword;
 
     public MongoConnectionParams(String propertiesFile) {
-        Properties properties = new Properties();
+        properties = new Properties();
         try {
             properties.load(getClass().getResourceAsStream(propertiesFile));
             init(properties);
@@ -88,5 +90,9 @@ public class MongoConnectionParams {
             );
         }
         return url;
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

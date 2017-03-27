@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.Before;
 
@@ -26,12 +27,13 @@ public class QueueTest {
 
     private MongoCollection<Document> collection;
     private MongoQueueCore queue;
+    private MongoDatabase db = null;
+    private MongoClient client;
     private boolean isMock = false;
 
     @Before
     public void setup() throws UnknownHostException {
         MongoConnectionParams mongoParams = new MongoConnectionParams("mongodb.properties");
-    	MongoDatabase db = null;
     	try {
     	    ServerAddress serverAddress = new ServerAddress(mongoParams.getMongoDBUrl());
             MongoCredential credential = MongoCredential.createScramSha1Credential(
@@ -39,14 +41,17 @@ public class QueueTest {
                 mongoParams.getMongoDBDB(),
                 mongoParams.getMongoDBPassword().toCharArray()
             );
-			MongoClient client = new MongoClient(
-                    Collections.singletonList(serverAddress),
-                    Collections.singletonList(credential),
-                    new MongoClientOptions.Builder().serverSelectionTimeout(50).build()
-            );
-			db = client.getDatabase(mongoParams.getMongoDBDB());
 
-			System.out.println("Using local Mongodb");
+            client = new MongoClient(
+                Collections.singletonList(serverAddress),
+                Collections.singletonList(credential),
+                new MongoClientOptions.Builder()
+                    .serverSelectionTimeout(1000)
+                    .build()
+            );
+            db = client.getDatabase(mongoParams.getMongoDBDB());
+
+			System.out.println("Using real Mongodb instance");
 		} catch (MongoTimeoutException e) {
 			System.out.println("MongoTimeoutException caught");
 		}
@@ -60,6 +65,11 @@ public class QueueTest {
         collection.drop();
 
         queue = new MongoQueueCore(collection);
+    }
+
+    @After
+    public void closeConnection() {
+        client.close();
     }
 
     @Test(expected = NullPointerException.class)
@@ -133,8 +143,7 @@ public class QueueTest {
         final String collectionName = "messages01234567890123456789012345678901234567890123456789"
                 + "012345678901234567890123456789012345678901234567890123456789012";
 
-        //collection = fongo.getDatabase("testing").getCollection(collectionName);
-        queue = new MongoQueueCore(collection);
+        queue = new MongoQueueCore(db.getCollection(collectionName));
         queue.ensureGetIndex();
     }
 
