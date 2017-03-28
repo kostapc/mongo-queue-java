@@ -9,12 +9,6 @@ import org.bson.Document;
  */
 public interface MongoQueueSerializer<T> {
 
-    /**
-     * initialize serializer on client associated with
-     * @param client - current client instance
-     */
-    void init(MongoConnection client);
-
     Document serialize(T object);
     T deserialize(Document document);
     Class<T> getObjectClass();

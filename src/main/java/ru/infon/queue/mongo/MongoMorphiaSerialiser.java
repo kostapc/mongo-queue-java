@@ -1,5 +1,6 @@
 package ru.infon.queue.mongo;
 
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
@@ -20,11 +21,6 @@ public class MongoMorphiaSerialiser<T> implements MongoQueueSerializer<T> {
     }
 
     @Override
-    public void init(MongoConnection client) {
-
-    }
-
-    @Override
     public Document serialize(T object) {
         JsonNode node = mapper.valueToTree(object);
         return mapper.convertValue(node, Document.class);
@@ -32,7 +28,6 @@ public class MongoMorphiaSerialiser<T> implements MongoQueueSerializer<T> {
 
     @Override
     public T deserialize(Document document) {
-
         return mapper.convertValue(document, objectClass);
     }
 

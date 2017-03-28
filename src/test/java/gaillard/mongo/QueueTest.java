@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.Before;
+import ru.infon.queue.mongo.MongoConnection;
 
 public class QueueTest {
 
@@ -34,22 +35,10 @@ public class QueueTest {
     @Before
     public void setup() throws UnknownHostException {
         MongoConnectionParams mongoParams = new MongoConnectionParams("mongodb.properties");
+        MongoConnection connection = new MongoConnection(mongoParams.getProperties());
     	try {
-    	    ServerAddress serverAddress = new ServerAddress(mongoParams.getMongoDBUrl());
-            MongoCredential credential = MongoCredential.createScramSha1Credential(
-                mongoParams.getMongoDBUser(),
-                mongoParams.getMongoDBDB(),
-                mongoParams.getMongoDBPassword().toCharArray()
-            );
-
-            client = new MongoClient(
-                Collections.singletonList(serverAddress),
-                Collections.singletonList(credential),
-                new MongoClientOptions.Builder()
-                    .serverSelectionTimeout(1000)
-                    .build()
-            );
-            db = client.getDatabase(mongoParams.getMongoDBDB());
+            client = connection.getMongoClient();
+            db = connection.getDatabase();
 
 			System.out.println("Using real Mongodb instance");
 		} catch (MongoTimeoutException e) {
@@ -58,7 +47,7 @@ public class QueueTest {
     	if(db == null) {
     		System.out.println("Reverting to embedded Fongo...");
     		Fongo fongo = new Fongo("Test Queue DB");
-    		db = fongo.getDatabase(mongoParams.getMongoDBDB());
+    		db = fongo.getDatabase(connection.getDatabaseName());
     		isMock = true;
     	}
 		collection = db.getCollection(COLLECTION_NAME);
