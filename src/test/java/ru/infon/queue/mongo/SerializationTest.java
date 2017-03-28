@@ -30,6 +30,10 @@ public class SerializationTest {
         Assert.assertEquals(pojo, processedPojo);
     }
 
+    private void manualConvert() {
+
+    }
+
     private double testConvert(int iterations) {
         long testTime = 0;
         IncrementalAverage mean = new IncrementalAverage();
@@ -79,8 +83,14 @@ public class SerializationTest {
     @Test
     public void conversionSpeedTest() throws IOException {
 
-        int iterations = 10;
-        long warmupTime = 10000;
+        int iterations = 100000;
+        long warmupTime = 20000;
+
+        if(warmupTime>0) {
+            System.out.println("with warmup");
+        } else {
+            System.out.println("without warmup");
+        }
 
         while (warmupTime>0) {
             long time = System.currentTimeMillis();
@@ -91,7 +101,7 @@ public class SerializationTest {
         }
 
         {
-            double result = testReparse(iterations);
+            double result = testConvert(iterations);
             System.out.println("avg nano time convert " + result + "( " + Math.round(result / 1000) + " )");
         }
 

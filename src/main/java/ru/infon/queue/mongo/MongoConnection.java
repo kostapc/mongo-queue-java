@@ -20,6 +20,13 @@ import java.util.logging.Logger;
  */
 public class MongoConnection {
 
+    private static final String MONGO_DB_URL = "default.mongodb.server";
+    private static final String MONGO_DB_DB = "default.mongodb.database";
+    private static final String MONGO_DB_USER = "default.mongodb.user";
+    private static final String MONGO_DB_PASSWORD = "default.mongodb.password";
+    private static final String MONGO_QUEUE_COLLECTION_NAME = "queue.mongodb.collection";
+
+
     private static final Logger LOGGER = Logger.getLogger("javax.cache");
 
     private static final MongoClientOptions defaultOptions = MongoClientOptions.builder().build();
@@ -82,40 +89,31 @@ public class MongoConnection {
     private final MongoDatabase mongoDB;
     private final MongoClient client;
 
-    public MongoConnection(MongoURIWrapper mongoClientURI, Properties properties) {
+    private String mongoDBName;
+    private String mongoDBUser;
+    private String mongoCollectionName;
+    private char[] mongoDBPassword;
 
-        if(mongoClientURI==null) {
-            throw new NullPointerException("mongoClientURI cannot be null");
-        }
-        if(properties==null) {
-            throw new NullPointerException("properties cannot be null");
-        }
+    public MongoConnection(Properties properties) {
 
         MongoClientOptions.Builder optionsBuilder = MongoClientOptions.builder();
 
-        String dbName = mongoClientURI.getDatabase();
-        String username = mongoClientURI.getUsername();
-        char[] password = mongoClientURI.getPassword();
-        MongoClientOptions options = mongoClientURI.getOptions();
-
-        List<ServerAddress> uriAdresses = new ArrayList<>();
         List<ServerAddress> propertiesAdresses = new ArrayList<>();
-        for (String hostName : mongoClientURI.getHosts()) {
-            uriAdresses.add(new ServerAddress(hostName));
-        }
+
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = entry.getKey().toString();
             String value = entry.getKey().toString();
-            if (key.startsWith("server")) {
+            if (key.startsWith(MONGO_DB_URL)) {
                 propertiesAdresses.add(new ServerAddress(value));
-            } else if (key.equals("database")) {
-                dbName = value;
-            } else if (key.startsWith("username")) {
-                username = value;
-            } else if (key.startsWith("password")) {
-                password = value.toCharArray();
+            } else if (key.equals(MONGO_DB_DB)) {
+                mongoDBName = value;
+            } else if (key.equals(MONGO_DB_USER)) {
+                mongoDBUser = value;
+            } else if (key.startsWith(MONGO_DB_PASSWORD)) {
+                mongoDBPassword = value.toCharArray();
+            } else if(key.startsWith(MONGO_QUEUE_COLLECTION_NAME)) {
+                mongoCollectionName = value;
             } else {
-                options = null;
                 try {
                     LOGGER.fine(MessageFormat.format("Set \"{0}\" value {1}", key, value));
                     Method method = optionsBuilderMap.get(key);
@@ -134,30 +132,28 @@ public class MongoConnection {
             }
         }
 
-        if (dbName == null || username == null) {
+        if (mongoDBName == null || mongoDBUser == null) {
             throw new RuntimeException("Mandatory property \"database\" not found");
         }
 
         List<MongoCredential> credentials =  Collections.singletonList(
                 MongoCredential.createCredential(
-                        username, dbName, password
+                        mongoDBUser, mongoDBName, mongoDBPassword
                 )
         );
 
-        if (options==null) {
-            WriteConcern writeConcern = WriteConcern.W1;
-            writeConcern.withJournal(true);
-            writeConcern.withWTimeout(0, TimeUnit.MILLISECONDS);
-            optionsBuilder.writeConcern(writeConcern);
-            options = optionsBuilder.build();
-        }
+        WriteConcern writeConcern = WriteConcern.W1;
+        writeConcern.withJournal(true);
+        writeConcern.withWTimeout(0, TimeUnit.MILLISECONDS);
+        optionsBuilder.writeConcern(writeConcern);
+        MongoClientOptions options = optionsBuilder.build();
 
 
         client = new MongoClient(
-                propertiesAdresses.size()>0?propertiesAdresses:uriAdresses,
+                propertiesAdresses,
                 credentials, options
         );
-        mongoDB = client.getDatabase(dbName);
+        mongoDB = client.getDatabase(mongoDBName);
     }
 
     /*===========================================[ CLASS METHODS ]==============*/
@@ -172,6 +168,10 @@ public class MongoConnection {
 
     public String getDatabaseName() {
         return mongoDB.getName();
+    }
+
+    public String getMongoCollectionName() {
+        return mongoCollectionName;
     }
 
     public MongoDatabase getDatabase() {
