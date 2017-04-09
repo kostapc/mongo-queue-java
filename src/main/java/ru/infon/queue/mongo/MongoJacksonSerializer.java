@@ -10,12 +10,12 @@ import org.bson.Document;
  * @author KostaPC
  * Copyright (c) 2017 Infon. All rights reserved.
  */
-public class MongoMorphiaSerialiser<T> implements MongoQueueSerializer<T> {
+public class MongoJacksonSerializer<T> implements MongoQueueSerializer<T> {
 
     private Class<T> objectClass;
     private ObjectMapper mapper;
 
-    MongoMorphiaSerialiser(Class<T> objectClass) {
+    MongoJacksonSerializer(Class<T> objectClass) {
         this.objectClass = objectClass;
         mapper = new ObjectMapper();
     }

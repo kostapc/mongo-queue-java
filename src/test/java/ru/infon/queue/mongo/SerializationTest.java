@@ -18,7 +18,7 @@ public class SerializationTest {
     @Test
     public void testDefaultSerializer() {
         JustPojo pojo = new JustPojo(13,"_1_3_!");
-        MongoMorphiaSerialiser<JustPojo> serialiser = new MongoMorphiaSerialiser<>(JustPojo.class);
+        MongoJacksonSerializer<JustPojo> serialiser = new MongoJacksonSerializer<>(JustPojo.class);
         Document bsonDocument = serialiser.serialize(pojo);
 
         System.out.println(bsonDocument);
