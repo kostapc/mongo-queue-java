@@ -3,4 +3,4 @@
 /.classpath
 /.settings/
 /.idea/
-/mongo-queue-java.iml
+/*.iml

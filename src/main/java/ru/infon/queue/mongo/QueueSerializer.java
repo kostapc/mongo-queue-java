@@ -7,7 +7,7 @@ import org.bson.Document;
  * @author KostaPC
  * Copyright (c) 2017 Infon. All rights reserved.
  */
-public interface MongoQueueSerializer<T> {
+public interface QueueSerializer<T> {
 
     Document serialize(T object);
     T deserialize(Document document);

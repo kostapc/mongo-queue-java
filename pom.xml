@@ -8,6 +8,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mongo.driver.version>3.2.2</mongo.driver.version>
     </properties>
 
     <dependencies>
@@ -15,7 +16,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>3.2.2</version>
+            <version>${mongo.driver.version}</version>
             <scope>provided</scope>
         </dependency>
 

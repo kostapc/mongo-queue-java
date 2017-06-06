@@ -1,6 +1,7 @@
 package ru.infon.queue.mongo;
 
 import com.mongodb.*;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.apache.commons.beanutils.ConvertUtils;
 
@@ -58,8 +59,8 @@ public class MongoConnection {
                     (
                             paramType.equals(Boolean.class) ||
                                     paramType.equals(Boolean.TYPE)
-                    )?
-                            "is":"get";
+                    )? "is":"get"
+            ;
             String getterName = prefix+optionName.substring(0,1).toUpperCase()+optionName.substring(1);
 
             Object defaultValue;
@@ -158,10 +159,6 @@ public class MongoConnection {
 
     /*===========================================[ CLASS METHODS ]==============*/
 
-    public MongoDatabase getMongoDB() {
-        return mongoDB;
-    }
-
     public MongoClient getMongoClient() {
         return client;
     }
@@ -176,6 +173,14 @@ public class MongoConnection {
 
     public MongoDatabase getDatabase() {
         return mongoDB;
+    }
+
+    public <D> MongoCollection<D> getMongoCollection(Class<D> documentCLass) {
+        return getDatabase().getCollection(getMongoCollectionName(), documentCLass);
+    }
+
+    public int getThreadsCount() {
+        return client.getMongoClientOptions().getConnectionsPerHost();
     }
 
 }

@@ -171,7 +171,7 @@ public final class MongoQueueCore {
         while (true) {
             // final Document message = (Document) collection.findAndModify(builtQuery, fields, sort, false, update, true, false);
             FindOneAndUpdateOptions opts = new FindOneAndUpdateOptions().sort(sort).upsert(false).returnDocument(ReturnDocument.AFTER).projection(fields);
-            final Document message = (Document) collection.findOneAndUpdate(builtQuery, update, opts);
+            final Document message = collection.findOneAndUpdate(builtQuery, update, opts);
             if (message != null) {
                 final ObjectId id = message.getObjectId("_id");
                 return ((Document) message.get("payload")).append("id", id);

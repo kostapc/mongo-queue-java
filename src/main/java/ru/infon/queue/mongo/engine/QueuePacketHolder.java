@@ -8,6 +8,9 @@ import java.util.Collection;
  * 2017 Infon ZED
  **/
 public interface QueuePacketHolder<T> {
-    Collection<MessageContainer<T>> fetch(TransportQueueConsumer consumer);
+
+    Collection<MessageContainer<T>> fetch(QueueConsumer<T> consumer);
     void ack(MessageContainer<T> packet);
+    void reset(MessageContainer<T> packet);
+
 }
