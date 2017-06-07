@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.infon.queue</groupId>
-    <artifactId>mongo-queue</artifactId>
+    <artifactId>box-queue</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -19,12 +19,6 @@
             <version>${mongo.driver.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!--dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.8.7</version>
-        </dependency-->
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
