@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class MongoConnection {
 
-    private static final String MONGO_DB_URL = "default.mongodb.server";
+    private static final String MONGO_DB_URL = "default.mongodb.uri";
     private static final String MONGO_DB_DB = "default.mongodb.database";
     private static final String MONGO_DB_USER = "default.mongodb.user";
     private static final String MONGO_DB_PASSWORD = "default.mongodb.password";
@@ -103,7 +103,7 @@ public class MongoConnection {
 
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = entry.getKey().toString();
-            String value = entry.getKey().toString();
+            String value = entry.getValue().toString();
             if (key.startsWith(MONGO_DB_URL)) {
                 propertiesAdresses.add(new ServerAddress(value));
             } else if (key.equals(MONGO_DB_DB)) {

@@ -2,10 +2,12 @@ package ru.infon.queue.mongo;
 
 import ru.infon.queue.mongo.engine.*;
 
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 23.03.2017
@@ -15,46 +17,51 @@ import java.util.concurrent.Future;
  * Object must be singletone
  * TODO: select library name and add root interface for queue
  */
-public class MongoQueue<T> {
+public class QueueBox<T> {
 
     private QueueEngine<T> queue = null;
-    private QueueBehave<T> behave = null;
-    private ExecutorService executor = null;
+    QueueBehave<T> behave = null;
+    ExecutorService executor = null;
 
-    private final Properties properties;
-    private final Class<T> packetClass;
+    final Properties properties;
+    final Class<T> packetClass;
 
-    public MongoQueue(Properties properties, Class<T> packetCLass) {
+    final AtomicBoolean started = new AtomicBoolean(false);
+
+    public QueueBox(Properties properties, Class<T> packetCLass) {
         this.properties = properties;
         this.packetClass = packetCLass;
     }
 
     // TODO: chain of setters to provide behave, executor and other...
-    public MongoQueue<T> withExecutorService(ExecutorService executor) {
+    public QueueBox<T> withExecutorService(ExecutorService executor) {
         this.executor = executor;
         return this;
     }
 
-    public MongoQueue<T> withQueueBehave(QueueBehave<T> queueBehave) {
+    public QueueBox<T> withQueueBehave(QueueBehave<T> queueBehave) {
         this.behave = queueBehave;
         return this;
     }
 
     public void start() {
-        if (behave==null) {
-            this.behave = new RoutedQueueBehave<>(properties, packetClass);
-        }
-        if (this.executor==null) {
-            this.executor = Executors.newFixedThreadPool(behave.getThreadsCount());
-        }
+        Objects.requireNonNull(behave);
+        Objects.requireNonNull(executor);
         this.queue = new QueueEngine<>(behave, executor);
+        started.set(true);
     }
 
     public void subscribe(QueueConsumer<T> consumer) {
+        if(!started.get()) {
+            throw new IllegalStateException("QueueBox not started");
+        }
         queue.registerConsumer(consumer);
     }
 
     public Future<T> queue(T message) {
+        if(!started.get()) {
+            throw new IllegalStateException("QueueBox not started");
+        }
         return executor.submit(()->{
             queue.queue(new MessageContainer<>(message));
             return message;
@@ -62,6 +69,9 @@ public class MongoQueue<T> {
     }
 
     public Future<T> queue(T message, int priority) {
+        if(!started.get()) {
+            throw new IllegalStateException("QueueBox not started");
+        }
         return executor.submit(()->{
             MessageContainer<T> messageContainer = new MessageContainer<>(message);
             messageContainer.setPriority(priority);

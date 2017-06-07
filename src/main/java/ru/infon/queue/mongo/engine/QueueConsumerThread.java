@@ -9,6 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
@@ -23,9 +24,8 @@ class QueueConsumerThread<T> {
 
     // TODO: move propery to external param
     private static final int PROPERTY_DEFAULT_FETCH_DELAY_MILLS = 100;
-    private static final int PROPERTY_DEFAULT_FETCH_LIMIT = 100;
 
-    private Executor executor;
+    private ExecutorService executor;
 
     private QueueConsumer<T> consumer;
     private QueuePacketHolder<T> packetHolder;
@@ -33,8 +33,10 @@ class QueueConsumerThread<T> {
 
     QueueConsumerThread(
             QueueConsumer<T> consumer,
-            QueuePacketHolder<T> packetHolder
+            QueuePacketHolder<T> packetHolder,
+            ExecutorService executor
     ) {
+        this.executor = executor;
         this.consumer = consumer;
         this.packetHolder = packetHolder;
     }

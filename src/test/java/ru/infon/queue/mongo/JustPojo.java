@@ -6,6 +6,7 @@ package ru.infon.queue.mongo;
  * Copyright (c) 2017 Infon. All rights reserved.
  */
 public class JustPojo {
+
     private int intValue;
     private String stringValue;
 

@@ -17,7 +17,7 @@ public class MessageContainer<T> {
 
     private final T message;
     private int priority = PRIORITY_DEFAULT;
-    private UUID id;
+    private Object id;
     private Consumer<MessageContainer<T>> onDone;
     private Consumer<MessageContainer<T>> onFail;
 
@@ -50,11 +50,11 @@ public class MessageContainer<T> {
         onFail.accept(this);
     }
 
-    UUID getId() {
+    Object getId() {
         return id;
     }
 
-    void setId(UUID id) {
+    void setId(Object id) {
         this.id = id;
     }
 }

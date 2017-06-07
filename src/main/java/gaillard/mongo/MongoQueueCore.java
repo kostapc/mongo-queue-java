@@ -1,17 +1,10 @@
 package gaillard.mongo;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.FindOneAndUpdateOptions;
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.ReturnDocument;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.*;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.UUID;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -182,6 +175,9 @@ public final class MongoQueueCore {
             }
 
             try {
+                if (pollDuration==0) {
+                    continue;
+                }
                 Thread.sleep(pollDuration);
             } catch (final InterruptedException ex) {
                 throw new RuntimeException(ex);

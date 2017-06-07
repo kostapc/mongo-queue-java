@@ -55,7 +55,7 @@ public class QueueEngine<T> implements QueuePacketHolder<T> {
         if (listenerThreads.containsKey(consumer.getConsumerId())) {
             throw new IllegalStateException("consumer with id \""+consumer.getConsumerId()+"\" already registered");
         }
-        QueueConsumerThread<T> consumerThread = new QueueConsumerThread<>(consumer, this);
+        QueueConsumerThread<T> consumerThread = new QueueConsumerThread<>(consumer, this, executor);
         listenerThreads.put(consumer.getConsumerId(), consumerThread);
         consumerThread.start();
     }

@@ -5,25 +5,29 @@ import org.bson.Document;
 import ru.infon.queue.mongo.MongoConnection;
 import ru.infon.queue.mongo.MongoJacksonSerializer;
 import ru.infon.queue.mongo.QueueSerializer;
+import ru.infon.queue.mongo.RoutedMessage;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * 06.06.2017
  * @author KostaPC
  * 2017 Infon ZED
  **/
-public class RoutedQueueBehave<T> implements QueueBehave<T> {
+public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T> {
+
+    private static final String FIELD_SOURCE = "source";
+    private static final String FIELD_DESCTINATION = "destination";
 
     private static final int DEFAULT_THREAD_COUNT = 100;
+    private static final int DEFAULT_FETCH_LIMIT = 100;
 
     private final QueueSerializer<T> serializer;
     private final MongoConnection connection;
     private final MongoQueueCore mongoQueueCore;
+
+    private int fetchLimit = DEFAULT_FETCH_LIMIT;
 
     public RoutedQueueBehave(Properties properties, Class<T> packetClass) {
         this.serializer = new MongoJacksonSerializer<>(packetClass);
@@ -31,6 +35,9 @@ public class RoutedQueueBehave<T> implements QueueBehave<T> {
         this.mongoQueueCore = new MongoQueueCore(
                 connection.getMongoCollection(Document.class)
         );
+        try {
+            this.fetchLimit = Integer.parseInt(properties.getProperty("queue.fetch.limit"));
+        } catch (NumberFormatException ignore) {}
     }
 
     @Override
@@ -40,6 +47,10 @@ public class RoutedQueueBehave<T> implements QueueBehave<T> {
 
     @Override
     public void put(MessageContainer<T> event) {
+        T message = event.getMessage();
+        Document queueMessage = serializer.serialize(message);
+        queueMessage.append(FIELD_SOURCE, message.getSource());
+        queueMessage.append(FIELD_DESCTINATION, message.getDestination());
         this.mongoQueueCore.send(
                 serializer.serialize(event.getMessage()),
                 new Date(),
@@ -50,20 +61,42 @@ public class RoutedQueueBehave<T> implements QueueBehave<T> {
     @Override
     public Collection<MessageContainer<T>> find(QueueConsumer<T> consumer) {
         Document query = new Document();
-        // TODO: select by destination
-        // get() many with updateMany with random key and then select by this key;
-        throw new NotImplementedException();
+        query.append(FIELD_DESCTINATION, consumer.getConsumerId());
+        List<MessageContainer<T>> resultList = new LinkedList<>();
+        int limit = fetchLimit;
+        while (limit-->0) {
+            Document queueMessage = mongoQueueCore.get(query, 10, 100, 0);
+            if(queueMessage==null) {
+                break;
+            }
+            Object id = queueMessage.get("id");
+            queueMessage.remove("id");
+            String destination = queueMessage.getString(FIELD_DESCTINATION);
+            String source = queueMessage.getString(FIELD_SOURCE);
+            T message = serializer.deserialize(queueMessage);
+            message.setSource(source);
+            message.setDestination(destination);
+            MessageContainer<T> messageContainer = new MessageContainer<>(message);
+            messageContainer.setId(id);
+            resultList.add(messageContainer);
+        }
+        return resultList;
     }
 
     @Override
     public void remove(MessageContainer<T> packet) {
-        // TODO: store original Document in MessageContainer for deleting it by _id
-        throw new NotImplementedException();
+        Document query = new Document();
+        query.append("id", packet.getId());
+        mongoQueueCore.ack(query);
     }
 
     @Override
-    public void reset(MessageContainer<T> packet) {
-        // TODO: store original Document in MessageContainer for returning it to queue
-        throw new NotImplementedException();
+    public void reset(MessageContainer<T> event) {
+        T message = event.getMessage();
+        Document queueMessage = serializer.serialize(message);
+        queueMessage.append(FIELD_SOURCE, message.getSource());
+        queueMessage.append(FIELD_DESCTINATION, message.getDestination());
+        queueMessage.append("id", event.getId());
+        mongoQueueCore.requeue(queueMessage);
     }
 }
