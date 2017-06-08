@@ -21,11 +21,11 @@ import java.util.logging.Logger;
  */
 public class MongoConnection {
 
-    private static final String MONGO_DB_URL = "default.mongodb.uri";
-    private static final String MONGO_DB_DB = "default.mongodb.database";
-    private static final String MONGO_DB_USER = "default.mongodb.user";
-    private static final String MONGO_DB_PASSWORD = "default.mongodb.password";
-    private static final String MONGO_QUEUE_COLLECTION_NAME = "queue.mongodb.collection";
+    public static final String MONGO_DB_URL = "default.mongodb.uri";
+    public static final String MONGO_DB_DB = "default.mongodb.database";
+    public static final String MONGO_DB_USER = "default.mongodb.user";
+    public static final String MONGO_DB_PASSWORD = "default.mongodb.password";
+    public static final String MONGO_QUEUE_COLLECTION_NAME = "mongodb.queue.collection";
 
 
     private static final Logger LOGGER = Logger.getLogger("javax.cache");

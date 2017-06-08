@@ -19,8 +19,10 @@ public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T
 
     private static final String FIELD_SOURCE = "source";
     private static final String FIELD_DESCTINATION = "destination";
+    private static final String FIELD_ID = "id";
 
-    private static final int DEFAULT_THREAD_COUNT = 100;
+    public static final String PROPERTY_FETCH_LIMIT = "queue.fetch.limit";
+
     private static final int DEFAULT_FETCH_LIMIT = 100;
 
     private final QueueSerializer<T> serializer;
@@ -36,7 +38,7 @@ public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T
                 connection.getMongoCollection(Document.class)
         );
         try {
-            this.fetchLimit = Integer.parseInt(properties.getProperty("queue.fetch.limit"));
+            this.fetchLimit = Integer.parseInt(properties.getProperty(PROPERTY_FETCH_LIMIT));
         } catch (NumberFormatException ignore) {}
     }
 
@@ -69,8 +71,8 @@ public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T
             if(queueMessage==null) {
                 break;
             }
-            Object id = queueMessage.get("id");
-            queueMessage.remove("id");
+            Object id = queueMessage.get(FIELD_ID);
+            queueMessage.remove(FIELD_ID);
             String destination = queueMessage.getString(FIELD_DESCTINATION);
             String source = queueMessage.getString(FIELD_SOURCE);
             T message = serializer.deserialize(queueMessage);
@@ -86,7 +88,7 @@ public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T
     @Override
     public void remove(MessageContainer<T> packet) {
         Document query = new Document();
-        query.append("id", packet.getId());
+        query.append(FIELD_ID, packet.getId());
         mongoQueueCore.ack(query);
     }
 
@@ -96,7 +98,7 @@ public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T
         Document queueMessage = serializer.serialize(message);
         queueMessage.append(FIELD_SOURCE, message.getSource());
         queueMessage.append(FIELD_DESCTINATION, message.getDestination());
-        queueMessage.append("id", event.getId());
+        queueMessage.append(FIELD_ID, event.getId());
         mongoQueueCore.requeue(queueMessage);
     }
 }

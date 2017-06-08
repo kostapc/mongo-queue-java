@@ -1,7 +1,8 @@
 package ru.infon.queue.mongo.engine;
 
-import java.util.UUID;
 import java.util.function.Consumer;
+
+import static ru.infon.queue.mongo.QueueBox.PRIORITY_DEFAULT;
 
 /**
  * 2017-04-09
@@ -9,11 +10,6 @@ import java.util.function.Consumer;
  * c0f3.net
  */
 public class MessageContainer<T> {
-
-    public static final int PRIORITY_HIGHT = 1;
-    public static final int PRIORITY_NORMAL = 4; // default priority value from documentation
-    public static final int PRIORITY_LOW = 10;
-    public static final int PRIORITY_DEFAULT = PRIORITY_NORMAL;
 
     private final T message;
     private int priority = PRIORITY_DEFAULT;

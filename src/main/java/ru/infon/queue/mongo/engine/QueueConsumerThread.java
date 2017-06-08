@@ -3,15 +3,13 @@ package ru.infon.queue.mongo.engine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
+
+import static ru.infon.queue.mongo.QueueBox.PROPERTY_FETCH_DELAY_MILLS;
 
 /**
  * 29.03.2017
@@ -22,23 +20,31 @@ class QueueConsumerThread<T> {
 
     private static final Log LOG = LogFactory.getLog(QueueConsumerThread.class);
 
-    // TODO: move propery to external param
-    private static final int PROPERTY_DEFAULT_FETCH_DELAY_MILLS = 100;
+    private static final int DEFAULT_FETCH_DELAY_MILLS = 100;
 
     private ExecutorService executor;
+    private Properties properties;
 
     private QueueConsumer<T> consumer;
     private QueuePacketHolder<T> packetHolder;
     private Timer timer = new Timer();
+    private int fetchDelayMills = DEFAULT_FETCH_DELAY_MILLS;
 
     QueueConsumerThread(
+            Properties properties,
             QueueConsumer<T> consumer,
             QueuePacketHolder<T> packetHolder,
             ExecutorService executor
     ) {
+        this.properties = properties;
         this.executor = executor;
         this.consumer = consumer;
         this.packetHolder = packetHolder;
+        try {
+            fetchDelayMills = Integer.parseInt(
+                    properties.getProperty(PROPERTY_FETCH_DELAY_MILLS)
+            );
+        } catch (NumberFormatException | NullPointerException ignore) {}
     }
 
     void start() {
@@ -61,7 +67,7 @@ class QueueConsumerThread<T> {
             ));
         }
         if(result.size()==0) {
-            schedule(()-> runTask(this::payload), PROPERTY_DEFAULT_FETCH_DELAY_MILLS);
+            schedule(()-> runTask(this::payload), fetchDelayMills);
         } else {
             Iterator<MessageContainer<T>> it = result.iterator();
             while (!result.isEmpty()) {

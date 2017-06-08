@@ -7,6 +7,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
@@ -21,12 +22,15 @@ public class QueueEngine<T> implements QueuePacketHolder<T> {
 
     private final QueueBehave<T> queueBehave;
     private final ExecutorService executor;
+    private final Properties properties;
     private Map<String, QueueConsumerThread> listenerThreads = new ConcurrentHashMap<>();
 
     public QueueEngine(
+            Properties properties,
             QueueBehave<T> queueBehave,
             ExecutorService executor
     ) {
+        this.properties = properties;
         this.queueBehave = queueBehave;
         this.executor = executor;
     }
@@ -55,7 +59,12 @@ public class QueueEngine<T> implements QueuePacketHolder<T> {
         if (listenerThreads.containsKey(consumer.getConsumerId())) {
             throw new IllegalStateException("consumer with id \""+consumer.getConsumerId()+"\" already registered");
         }
-        QueueConsumerThread<T> consumerThread = new QueueConsumerThread<>(consumer, this, executor);
+        QueueConsumerThread<T> consumerThread = new QueueConsumerThread<>(
+                properties,
+                consumer,
+                this,
+                executor
+        );
         listenerThreads.put(consumer.getConsumerId(), consumerThread);
         consumerThread.start();
     }

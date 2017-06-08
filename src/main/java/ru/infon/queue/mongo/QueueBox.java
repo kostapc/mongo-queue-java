@@ -19,6 +19,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class QueueBox<T> {
 
+    public static final int PRIORITY_HIGHT = 1;
+    public static final int PRIORITY_NORMAL = 4; // default priority value from documentation
+    public static final int PRIORITY_LOW = 10;
+    public static final int PRIORITY_DEFAULT = PRIORITY_NORMAL;
+
+    public static final String PROPERTY_FETCH_DELAY_MILLS = "queue.fetch.delay.mills";
+
     private QueueEngine<T> queue = null;
     QueueBehave<T> behave = null;
     ExecutorService executor = null;
@@ -47,7 +54,7 @@ public class QueueBox<T> {
     public void start() {
         Objects.requireNonNull(behave);
         Objects.requireNonNull(executor);
-        this.queue = new QueueEngine<>(behave, executor);
+        this.queue = new QueueEngine<>(properties, behave, executor);
         started.set(true);
     }
 
