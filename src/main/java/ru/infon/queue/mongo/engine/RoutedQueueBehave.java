@@ -75,6 +75,8 @@ public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T
             queueMessage.remove(FIELD_ID);
             String destination = queueMessage.getString(FIELD_DESCTINATION);
             String source = queueMessage.getString(FIELD_SOURCE);
+            queueMessage.remove(FIELD_DESCTINATION);
+            queueMessage.remove(FIELD_SOURCE);
             T message = serializer.deserialize(queueMessage);
             message.setSource(source);
             message.setDestination(destination);

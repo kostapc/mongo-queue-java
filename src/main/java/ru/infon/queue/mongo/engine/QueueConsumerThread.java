@@ -56,7 +56,12 @@ class QueueConsumerThread<T> {
     }
 
     private Collection<MessageContainer<T>> payload() {
-        return packetHolder.fetch(consumer);
+        try {
+            return packetHolder.fetch(consumer);
+        } catch (Throwable e) {
+            LOG.debug(e);
+            return Collections.EMPTY_LIST;
+        }
     }
 
     private void onComplete(Collection<MessageContainer<T>> result) {
