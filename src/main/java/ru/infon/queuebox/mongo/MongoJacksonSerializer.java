@@ -1,9 +1,10 @@
-package ru.infon.queue.mongo;
+package ru.infon.queuebox.mongo;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
+import ru.infon.queuebox.QueueSerializer;
 
 /**
  * 27.03.2017

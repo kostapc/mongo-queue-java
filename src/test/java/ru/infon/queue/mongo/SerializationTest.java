@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
 import org.junit.Assert;
 import org.junit.Test;
+import ru.infon.queuebox.mongo.MongoJacksonSerializer;
 
 import java.io.IOException;
 

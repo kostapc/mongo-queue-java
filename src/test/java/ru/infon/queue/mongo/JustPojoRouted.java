@@ -1,5 +1,7 @@
 package ru.infon.queue.mongo;
 
+import ru.infon.queuebox.RoutedMessage;
+
 /**
  * 27.03.2017
  * @author KostaPC

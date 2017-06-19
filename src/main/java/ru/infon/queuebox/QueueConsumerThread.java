@@ -1,4 +1,4 @@
-package ru.infon.queue.mongo.engine;
+package ru.infon.queuebox;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
-import static ru.infon.queue.mongo.QueueBox.PROPERTY_FETCH_DELAY_MILLS;
+import static ru.infon.queuebox.QueueBox.PROPERTY_FETCH_DELAY_MILLS;
 
 /**
  * 29.03.2017

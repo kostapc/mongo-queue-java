@@ -1,6 +1,7 @@
-package ru.infon.queue.mongo;
+package ru.infon.queuebox.mongo;
 
-import ru.infon.queue.mongo.engine.RoutedQueueBehave;
+import ru.infon.queuebox.QueueBox;
+import ru.infon.queuebox.RoutedMessage;
 
 import java.util.Properties;
 import java.util.concurrent.Executors;

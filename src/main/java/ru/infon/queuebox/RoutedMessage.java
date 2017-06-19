@@ -1,4 +1,4 @@
-package ru.infon.queue.mongo;
+package ru.infon.queuebox;
 
 /**
  * 07.06.2017

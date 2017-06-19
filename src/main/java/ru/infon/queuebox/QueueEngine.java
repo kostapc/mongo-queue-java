@@ -1,9 +1,8 @@
-package ru.infon.queue.mongo.engine;
+package ru.infon.queuebox;
 
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
 import java.util.Map;

@@ -1,12 +1,10 @@
-package ru.infon.queue.mongo.engine;
+package ru.infon.queuebox.mongo;
 
 import gaillard.mongo.MongoQueueCore;
 import org.bson.Document;
-import ru.infon.queue.mongo.MongoConnection;
-import ru.infon.queue.mongo.MongoJacksonSerializer;
-import ru.infon.queue.mongo.QueueSerializer;
-import ru.infon.queue.mongo.RoutedMessage;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import ru.infon.queuebox.*;
+import ru.infon.queuebox.mongo.MongoConnection;
+import ru.infon.queuebox.mongo.MongoJacksonSerializer;
 
 import java.util.*;
 

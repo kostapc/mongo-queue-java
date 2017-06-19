@@ -1,4 +1,4 @@
-package ru.infon.queue.mongo;
+package ru.infon.queuebox;
 
 import org.bson.Document;
 

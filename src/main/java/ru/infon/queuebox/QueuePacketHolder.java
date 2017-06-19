@@ -1,4 +1,4 @@
-package ru.infon.queue.mongo.engine;
+package ru.infon.queuebox;
 
 import java.util.Collection;
 

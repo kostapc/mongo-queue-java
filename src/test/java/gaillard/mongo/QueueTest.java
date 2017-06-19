@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.Before;
-import ru.infon.queue.mongo.MongoConnection;
+import ru.infon.queuebox.mongo.MongoConnection;
 
 public class QueueTest {
 

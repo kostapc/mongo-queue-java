@@ -1,8 +1,8 @@
-package ru.infon.queue.mongo.engine;
+package ru.infon.queuebox;
 
 import java.util.function.Consumer;
 
-import static ru.infon.queue.mongo.QueueBox.PRIORITY_DEFAULT;
+import static ru.infon.queuebox.QueueBox.PRIORITY_DEFAULT;
 
 /**
  * 2017-04-09
@@ -46,11 +46,11 @@ public class MessageContainer<T> {
         onFail.accept(this);
     }
 
-    Object getId() {
+    public Object getId() {
         return id;
     }
 
-    void setId(Object id) {
+    public void setId(Object id) {
         this.id = id;
     }
 }

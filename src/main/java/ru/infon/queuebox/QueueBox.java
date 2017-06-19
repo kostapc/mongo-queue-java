@@ -1,11 +1,8 @@
-package ru.infon.queue.mongo;
-
-import ru.infon.queue.mongo.engine.*;
+package ru.infon.queuebox;
 
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,11 +24,11 @@ public class QueueBox<T> {
     public static final String PROPERTY_FETCH_DELAY_MILLS = "queue.fetch.delay.mills";
 
     private QueueEngine<T> queue = null;
-    QueueBehave<T> behave = null;
-    ExecutorService executor = null;
+    protected QueueBehave<T> behave = null;
+    protected ExecutorService executor = null;
 
-    final Properties properties;
-    final Class<T> packetClass;
+    protected final Properties properties;
+    protected final Class<T> packetClass;
 
     final AtomicBoolean started = new AtomicBoolean(false);
 

@@ -1,4 +1,4 @@
-package ru.infon.queue.mongo;
+package ru.infon.queuebox.mongo;
 
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;

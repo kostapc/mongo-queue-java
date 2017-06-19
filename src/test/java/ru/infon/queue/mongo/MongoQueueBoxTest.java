@@ -5,8 +5,10 @@ import org.bson.Document;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ru.infon.queue.mongo.engine.MessageContainer;
-import ru.infon.queue.mongo.engine.QueueConsumer;
+import ru.infon.queuebox.MessageContainer;
+import ru.infon.queuebox.QueueConsumer;
+import ru.infon.queuebox.mongo.MongoConnection;
+import ru.infon.queuebox.mongo.MongoRoutedQueueBox;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
