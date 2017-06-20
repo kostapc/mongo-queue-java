@@ -46,7 +46,7 @@ public final class Main {
 To add the library as a jar simply [Build](#project-build) the project and use the `mongo-queue-java-1.1.0-SNAPSHOT.jar` from the created
 `target` directory!
 
-## Maven (TODO: Add project to Sonar OSS repo)
+## Maven
 
 To add the library as a local, per-project dependency use [Maven](http://maven.apache.org)! Simply add a dependency on
 to your project's `pom.xml` file such as:
@@ -54,10 +54,14 @@ to your project's `pom.xml` file such as:
 ```xml
 
 <dependency>
-    <!-- coming soon -->
+	<groupId>ru.infon.oss</groupId>
+	<artifactId>queue-box</artifactId>
+	<version>0.0.1</version>
 </dependency>
 
 ```
+
+while package not approved in maven-cental [This config](https://bintray.com/repo/downloadMavenRepoSettingsFile/downloadSettings?repoPath=%2Finfon-zed-oss%2Finfon-zed-oss) can be used to setup repository.
 
 ## Documentation
 
