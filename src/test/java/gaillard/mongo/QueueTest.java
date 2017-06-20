@@ -17,54 +17,53 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.Before;
+import ru.infon.queuebox.mongo.MongoConnection;
 
 public class QueueTest {
 
     private static final String COLLECTION_NAME = "messages";
 
     private MongoCollection<Document> collection;
-    private Queue queue;
+    private MongoQueueCore queue;
+    private MongoDatabase db = null;
+    private MongoClient client;
     private boolean isMock = false;
 
     @Before
     public void setup() throws UnknownHostException {
         MongoConnectionParams mongoParams = new MongoConnectionParams("mongodb.properties");
-    	MongoDatabase db = null;
+        MongoConnection connection = new MongoConnection(mongoParams.getProperties());
     	try {
-    	    ServerAddress serverAddress = new ServerAddress(mongoParams.getMongoDBUrl());
-            MongoCredential credential = MongoCredential.createScramSha1Credential(
-                mongoParams.getMongoDBUser(),
-                mongoParams.getMongoDBDB(),
-                mongoParams.getMongoDBPassword().toCharArray()
-            );
-			MongoClient client = new MongoClient(
-                    Collections.singletonList(serverAddress),
-                    Collections.singletonList(credential),
-                    new MongoClientOptions.Builder().serverSelectionTimeout(50).build()
-            );
-			db = client.getDatabase(mongoParams.getMongoDBDB());
+            client = connection.getMongoClient();
+            db = connection.getDatabase();
 
-			System.out.println("Using local Mongodb");
+			System.out.println("Using real Mongodb instance");
 		} catch (MongoTimeoutException e) {
 			System.out.println("MongoTimeoutException caught");
 		}
     	if(db == null) {
     		System.out.println("Reverting to embedded Fongo...");
     		Fongo fongo = new Fongo("Test Queue DB");
-    		db = fongo.getDatabase(mongoParams.getMongoDBDB());
+    		db = fongo.getDatabase(connection.getDatabaseName());
     		isMock = true;
     	}
 		collection = db.getCollection(COLLECTION_NAME);
         collection.drop();
 
-        queue = new Queue(collection);
+        queue = new MongoQueueCore(collection);
+    }
+
+    @After
+    public void closeConnection() {
+        client.close();
     }
 
     @Test(expected = NullPointerException.class)
     public void construct_nullCollection() {
-        new Queue(null);
+        new MongoQueueCore(null);
     }
 
     @Test
@@ -133,8 +132,7 @@ public class QueueTest {
         final String collectionName = "messages01234567890123456789012345678901234567890123456789"
                 + "012345678901234567890123456789012345678901234567890123456789012";
 
-        //collection = fongo.getDatabase("testing").getCollection(collectionName);
-        queue = new Queue(collection);
+        queue = new MongoQueueCore(db.getCollection(collectionName));
         queue.ensureGetIndex();
     }
 

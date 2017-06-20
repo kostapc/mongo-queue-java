@@ -1,15 +1,14 @@
-# mongo-queue-java
+# Mongo queue java wrapper
 [![Build Status](https://travis-ci.org/gaillard/mongo-queue-java.png)](https://travis-ci.org/gaillard/mongo-queue-java)
 
 Java message queue using MongoDB as a backend.
 
-This version is a fork from the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java).
+This version is a fork from the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java) and impoved by [Uromahn](https://github.com/uromahn/mongo-queue-java)
 
-This fork contains an upgrade to use the latest MongoDB version with the latest Java Driver (version 3.2.2). Consequently, the code has also been upgraded to the new V3.0 Java API of MongoDB.
+This fork use the latest MongoDB version with the latest Java Driver (version 3.2.2) and contains wrapper that hide MongoDB driver API and allow queue plain java objects.
 
-Additionally, I have also added the Fake MongoDB project ([Fongo](https://github.com/fakemongo/fongo)) to be used in the unit tests. Fongo is a standalone mock server simulating 90% of MongoDB completely developed in Java. While it aims to be 100% compatible, this is obviously not easy to achieve and some incompatibilities exist which are also reflected in two unit tests here.
+Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to be used in the unit tests. Fongo is a standalone mock server simulating 90% of MongoDB completely developed in Java. While it aims to be 100% compatible, this is obviously not easy to achieve and some incompatibilities exist which are also reflected in two unit tests here.
 
-If you want to use the mongo-queue-java together with MongoDB 3 please clone this project and checkout the 'mongo3' branch.
 
 ## Features
 
@@ -55,27 +54,25 @@ to your project's `pom.xml` file such as:
 ```xml
 
 <dependency>
-    <groupId>gaillard</groupId>
-    <artifactId>mongo-queue-java</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <!-- coming soon -->
 </dependency>
 
 ```
 
 ## Documentation
 
-Found in the [source](src/main/java/gaillard/mongo/Queue.java) itself, take a look!
+Found in the [source](/src/main/java/gaillard/mongo/MongoQueueCore.java) itself, take a look!
 
 ## Contact
 
 Developers may be contacted at:
 
- * [Pull Requests](https://github.com/gaillard/mongo-queue-java/pulls)
- * [Issues](https://github.com/gaillard/mongo-queue-java/issues)
+ * [Pull Requests](https://github.com/infon-zed/mongo-queue-java/pulls)
+ * [Issues](https://github.com/infon-zed/mongo-queue-java/issues)
 
 ## Project Build
 
-Install and start [mongodb](http://www.mongodb.org).
+Install and start [mongodb](http://www.mongodb.org) or use [docker container](https://hub.docker.com/_/mongo/)
 With a checkout of the code get [Maven](http://maven.apache.org) in your PATH and run:
 
 ```bash

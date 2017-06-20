@@ -1,26 +1,19 @@
 package gaillard.mongo;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.FindOneAndUpdateOptions;
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.ReturnDocument;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.*;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.UUID;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-public final class Queue {
+public final class MongoQueueCore {
 
     private final MongoCollection<Document> collection;
 
-    public Queue(final MongoCollection<Document> collection) {
+    public MongoQueueCore(final MongoCollection<Document> collection) {
         Objects.requireNonNull(collection);
 
         this.collection = collection;
@@ -170,8 +163,8 @@ public final class Queue {
 
         while (true) {
             // final Document message = (Document) collection.findAndModify(builtQuery, fields, sort, false, update, true, false);
-        	FindOneAndUpdateOptions opts = new FindOneAndUpdateOptions().sort(sort).upsert(false).returnDocument(ReturnDocument.AFTER).projection(fields);
-            final Document message = (Document) collection.findOneAndUpdate(builtQuery, update, opts);
+            FindOneAndUpdateOptions opts = new FindOneAndUpdateOptions().sort(sort).upsert(false).returnDocument(ReturnDocument.AFTER).projection(fields);
+            final Document message = collection.findOneAndUpdate(builtQuery, update, opts);
             if (message != null) {
                 final ObjectId id = message.getObjectId("_id");
                 return ((Document) message.get("payload")).append("id", id);
@@ -182,6 +175,9 @@ public final class Queue {
             }
 
             try {
+                if (pollDuration==0) {
+                    continue;
+                }
                 Thread.sleep(pollDuration);
             } catch (final InterruptedException ex) {
                 throw new RuntimeException(ex);
@@ -392,7 +388,7 @@ public final class Queue {
                 //creating an index with different name and same spec does nothing.
                 //so we use any generated name, and then find the right spec after we have called, and just go with that name.
 
-            	IndexOptions iOpts = new IndexOptions().background(true).name(name);
+                IndexOptions iOpts = new IndexOptions().background(true).name(name);
                 collection.createIndex(index, iOpts);
 
                 for (final Document existingIndex : collection.listIndexes()) {
