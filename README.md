@@ -61,7 +61,7 @@ to your project's `pom.xml` file such as:
 
 ```
 
-while package not approved in maven-cental [This config](https://bintray.com/repo/downloadMavenRepoSettingsFile/downloadSettings?repoPath=%2Finfon-zed-oss%2Finfon-zed-oss) can be used to setup repository.
+Package approved in jcenter OpenSource repository. If you not set up it yet - [here](https://bintray.com/bintray/jcenter) you can find instruction.
 
 ## Documentation
 
