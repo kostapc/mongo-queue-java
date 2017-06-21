@@ -25,25 +25,50 @@ Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to b
 ## Simplest use
 
 ```java
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import gaillard.mongo.Queue;
-import java.net.UnknownHostException;
+public static void main(String[] args) throws InterruptedException, IOException {
+        final String defaultSource = "just_source";
+        final String defaultDestination = "just_destination";
 
-public final class Main {
+        Properties properties = new Properties();
+        properties.load(ExampleWithMain.class.getResourceAsStream("mongodb.properties"));
+        MongoRoutedQueueBox<JustPojoRouted> queueBox = new MongoRoutedQueueBox<>(
+                properties,
+                JustPojoRouted.class
+        );
+        queueBox.start(); // init internal thread pool ant begin periodic query to db
 
-    public static void main(final String[] args) throws UnknownHostException {
-        final Queue queue = new Queue(new MongoClient().getDB("testing").getCollection("messages"));
-        queue.send(new BasicDBObject());
-        final BasicDBObject message = queue.get(new BasicDBObject(), 60);
-        queue.ack(message);
+        final JustPojoRouted pojo = new JustPojoRouted(13, "string message for 13");
+        pojo.setSource(defaultSource);
+        pojo.setDestination(defaultDestination);
+
+        queueBox.subscribe(new QueueConsumer<JustPojoRouted>() {
+            @Override
+            public void onPacket(MessageContainer<JustPojoRouted> message) {
+                JustPojoRouted recvPojo = message.getMessage();
+                System.out.println("received packet:"+recvPojo);
+                message.done(); // accepting message
+            }
+
+            @Override
+            public String getConsumerId() {
+                return defaultDestination; // destinations that this consumer accepts
+            }
+        });
+
+        Future future = queueBox.queue(pojo);
+
+        while (!future.isDone()) {
+            Thread.sleep(5);
+        }
+
+        System.out.println("send packet: "+pojo);
+
     }
-}
 ```
 
 ## Jar
 
-To add the library as a jar simply [Build](#project-build) the project and use the `mongo-queue-java-1.1.0-SNAPSHOT.jar` from the created
+To add the library as a jar simply [Build](#project-build) the project and use the `queue-box-0.0.1.jar` from the created
 `target` directory!
 
 ## Maven
