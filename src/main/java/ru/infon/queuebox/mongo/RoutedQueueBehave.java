@@ -35,6 +35,9 @@ public class RoutedQueueBehave<T extends RoutedMessage> implements QueueBehave<T
         this.mongoQueueCore = new MongoQueueCore(
                 connection.getMongoCollection(Document.class)
         );
+        Document indexDocument = new Document();
+        indexDocument.append(FIELD_DESCTINATION,1);
+        mongoQueueCore.ensureGetIndex(indexDocument);
         try {
             this.fetchLimit = Integer.parseInt(properties.getProperty(PROPERTY_FETCH_LIMIT));
         } catch (NumberFormatException ignore) {}
