@@ -3,8 +3,6 @@
 
 Java message queue using MongoDB as a backend.
 
-This version is a fork from the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java) and impoved by [Uromahn](https://github.com/uromahn/mongo-queue-java)
-
 This fork use the latest MongoDB version with the latest Java Driver (version 3.2.2) and contains wrapper that hide MongoDB driver API and allow queue plain java objects.
 
 Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to be used in the unit tests. Fongo is a standalone mock server simulating 90% of MongoDB completely developed in Java. While it aims to be 100% compatible, this is obviously not easy to achieve and some incompatibilities exist which are also reflected in two unit tests here.
@@ -12,17 +10,21 @@ Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to b
 
 ## Features
 
+ * totally async and non-blocking multithreading
  * Message selection and/or count via MongoDB query
  * Distributes across machines via MongoDB
- * Multi language support through the [specification](https://github.com/dominionenterprises/mongo-queue-specification)
  * Message priority
  * Delayed messages
  * Running message timeout and redeliver
  * Atomic acknowledge and send together
  * Easy index creation based only on payload
- * Upgraded to work with the latest MongoDB 3.2 (checkout branch 'mongo3')
+ * work with the latest MongoDB 3.2 
 
-## Simplest use
+## Usage example
+
+ * starting QueueBox instance
+ * creating listener for specific "destination"
+ * creating and sending some simple message presented as POJO
 
 ```java
 public static void main(String[] args) throws InterruptedException, IOException {
@@ -109,3 +111,7 @@ mvn clean install
 ```
 
 Alternatively the `mvn clean install` can also be run without a local MongoDB thanks to Fongo.
+
+## We must know yours heroes!
+
+This version is based on the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java) and impoved by [Uromahn](https://github.com/uromahn/mongo-queue-java)
