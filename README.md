@@ -1,4 +1,5 @@
-# Mongo queue java wrapper
+# QueueBox - async queue engine based on MongoDB
+
 [![Build Status](https://travis-ci.org/gaillard/mongo-queue-java.png)](https://travis-ci.org/gaillard/mongo-queue-java)
 
 Java message queue using MongoDB as a backend.
