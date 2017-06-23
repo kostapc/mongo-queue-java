@@ -20,6 +20,7 @@ Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to b
  * Atomic acknowledge and send together
  * Easy index creation based only on payload
  * work with the latest MongoDB 3.2 
+ * you can use any other storage sytem by implementing interface
 
 ## Usage example
 
