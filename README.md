@@ -112,6 +112,6 @@ mvn clean install
 
 Alternatively the `mvn clean install` can also be run without a local MongoDB thanks to Fongo.
 
-## We must know yours heroes!
+## We must know our heroes!
 
 This version is based on the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java) and impoved by [Uromahn](https://github.com/uromahn/mongo-queue-java)
