@@ -1,9 +1,8 @@
-# Mongo queue java wrapper
+# QueueBox - async queue engine based on MongoDB
+
 [![Build Status](https://travis-ci.org/gaillard/mongo-queue-java.png)](https://travis-ci.org/gaillard/mongo-queue-java)
 
 Java message queue using MongoDB as a backend.
-
-This version is a fork from the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java) and impoved by [Uromahn](https://github.com/uromahn/mongo-queue-java)
 
 This fork use the latest MongoDB version with the latest Java Driver (version 3.2.2) and contains wrapper that hide MongoDB driver API and allow queue plain java objects.
 
@@ -12,41 +11,71 @@ Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to b
 
 ## Features
 
+ * totally async and non-blocking multithreading
  * Message selection and/or count via MongoDB query
  * Distributes across machines via MongoDB
- * Multi language support through the [specification](https://github.com/dominionenterprises/mongo-queue-specification)
  * Message priority
  * Delayed messages
  * Running message timeout and redeliver
  * Atomic acknowledge and send together
  * Easy index creation based only on payload
- * Upgraded to work with the latest MongoDB 3.2 (checkout branch 'mongo3')
+ * work with the latest MongoDB 3.2 
+ * you can use any other storage sytem by implementing interface
 
-## Simplest use
+## Usage example
+
+ * starting QueueBox instance
+ * creating listener for specific "destination"
+ * creating and sending some simple message presented as POJO
 
 ```java
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import gaillard.mongo.Queue;
-import java.net.UnknownHostException;
+public static void main(String[] args) throws InterruptedException, IOException {
+        final String defaultSource = "just_source";
+        final String defaultDestination = "just_destination";
 
-public final class Main {
+        Properties properties = new Properties();
+        properties.load(ExampleWithMain.class.getResourceAsStream("mongodb.properties"));
+        MongoRoutedQueueBox<JustPojoRouted> queueBox = new MongoRoutedQueueBox<>(
+                properties,
+                JustPojoRouted.class
+        );
+        queueBox.start(); // init internal thread pool ant begin periodic query to db
 
-    public static void main(final String[] args) throws UnknownHostException {
-        final Queue queue = new Queue(new MongoClient().getDB("testing").getCollection("messages"));
-        queue.send(new BasicDBObject());
-        final BasicDBObject message = queue.get(new BasicDBObject(), 60);
-        queue.ack(message);
+        final JustPojoRouted pojo = new JustPojoRouted(13, "string message for 13");
+        pojo.setSource(defaultSource);
+        pojo.setDestination(defaultDestination);
+
+        queueBox.subscribe(new QueueConsumer<JustPojoRouted>() {
+            @Override
+            public void onPacket(MessageContainer<JustPojoRouted> message) {
+                JustPojoRouted recvPojo = message.getMessage();
+                System.out.println("received packet:"+recvPojo);
+                message.done(); // accepting message
+            }
+
+            @Override
+            public String getConsumerId() {
+                return defaultDestination; // destinations that this consumer accepts
+            }
+        });
+
+        Future future = queueBox.queue(pojo);
+
+        while (!future.isDone()) {
+            Thread.sleep(5);
+        }
+
+        System.out.println("send packet: "+pojo);
+
     }
-}
 ```
 
 ## Jar
 
-To add the library as a jar simply [Build](#project-build) the project and use the `mongo-queue-java-1.1.0-SNAPSHOT.jar` from the created
+To add the library as a jar simply [Build](#project-build) the project and use the `queue-box-0.0.1.jar` from the created
 `target` directory!
 
-## Maven (TODO: Add project to Sonar OSS repo)
+## Maven
 
 To add the library as a local, per-project dependency use [Maven](http://maven.apache.org)! Simply add a dependency on
 to your project's `pom.xml` file such as:
@@ -54,10 +83,14 @@ to your project's `pom.xml` file such as:
 ```xml
 
 <dependency>
-    <!-- coming soon -->
+	<groupId>ru.infon.oss</groupId>
+	<artifactId>queue-box</artifactId>
+	<version>0.0.1</version>
 </dependency>
 
 ```
+
+Package approved in jcenter OpenSource repository. If you not set up it yet - [here](https://bintray.com/bintray/jcenter) you can find instruction.
 
 ## Documentation
 
@@ -80,3 +113,7 @@ mvn clean install
 ```
 
 Alternatively the `mvn clean install` can also be run without a local MongoDB thanks to Fongo.
+
+## We must know our heroes!
+
+This version is based on the original version authored by [Gaillard](https://github.com/gaillard) from [here](https://github.com/gaillard/mongo-queue-java) and impoved by [Uromahn](https://github.com/uromahn/mongo-queue-java)
