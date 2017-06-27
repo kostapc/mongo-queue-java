@@ -85,7 +85,7 @@ to your project's `pom.xml` file such as:
 <dependency>
 	<groupId>ru.infon.oss</groupId>
 	<artifactId>queue-box</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 </dependency>
 
 ```
