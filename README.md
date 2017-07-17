@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/gaillard/mongo-queue-java.png)](https://travis-ci.org/gaillard/mongo-queue-java)
 
-Java message queue using MongoDB as a backend.
+Async java message queue using MongoDB as a backend.    
 
 This fork use the latest MongoDB version with the latest Java Driver (version 3.2.2) and contains wrapper that hide MongoDB driver API and allow queue plain java objects.
 
@@ -89,8 +89,6 @@ to your project's `pom.xml` file such as:
 </dependency>
 
 ```
-
-Package approved in jcenter OpenSource repository. If you not set up it yet - [here](https://bintray.com/bintray/jcenter) you can find instruction.
 
 ## Documentation
 
