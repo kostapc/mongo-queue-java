@@ -2,6 +2,33 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <name>QueueBox library</name>
+    <description>
+        Async message queue library using MongoDB as a backend with minimal set of dependencies.
+    </description>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+    <url>https://github.com/infon-zed/mongo-queue-java</url>
+
+    <scm>
+        <connection>scm:git:git://github.com/infon-zed/mongo-queue-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com:infon-zed/mongo-queue-java.git</developerConnection>
+        <url>https://github.com/infon-zed/mongo-queue-java</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Konstantin Lychagin</name>
+            <email>opensource@sinfon.ru</email>
+            <organization>Infon</organization>
+            <organizationUrl>http://oss.infon.ru</organizationUrl>
+        </developer>
+    </developers>
+
     <groupId>ru.infon.oss</groupId>
     <artifactId>queue-box</artifactId>
     <version>0.0.2</version>
@@ -102,6 +129,32 @@
                         </plugin>
                     </reportPlugins>
                 </configuration>
+            </plugin>
+            <plugin>
+                <inherited>true</inherited>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
