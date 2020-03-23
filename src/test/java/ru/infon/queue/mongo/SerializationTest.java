@@ -3,11 +3,12 @@ package ru.infon.queue.mongo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.Document;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ru.infon.queuebox.mongo.MongoJacksonSerializer;
 
 import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * 27.03.2017
@@ -28,11 +29,7 @@ public class SerializationTest {
 
         System.out.println("processed \n:"+processedPojo);
 
-        Assert.assertEquals(pojo, processedPojo);
-    }
-
-    private void manualConvert() {
-
+        assertEquals(pojo, processedPojo);
     }
 
     private double testConvert(int iterations) {
@@ -50,7 +47,7 @@ public class SerializationTest {
             JustPojo result = mapper.convertValue(document, JustPojo.class);
             testTime = System.nanoTime() - time;
             mean.increment(testTime);
-            Assert.assertEquals(pojo, result);
+            assertEquals(pojo, result);
         }
 
         return mean.getResult();
@@ -75,7 +72,7 @@ public class SerializationTest {
             }
             testTime = System.nanoTime() - time;
             mean.increment(testTime);
-            Assert.assertEquals(pojo, result);
+            assertEquals(pojo, result);
         }
 
         return mean.getResult();
@@ -114,7 +111,7 @@ public class SerializationTest {
 
 
 
-    class IncrementalAverage {
+    static class IncrementalAverage {
 
         int count = 0;
         double prevAvg = 0;

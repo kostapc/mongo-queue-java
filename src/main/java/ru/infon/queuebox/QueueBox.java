@@ -59,7 +59,7 @@ public class QueueBox<T> {
         if(!started.get()) {
             throw new IllegalStateException("QueueBox not started");
         }
-        queue.registerConsumer(consumer);
+        executor.submit(()-> queue.registerConsumer(consumer));
     }
 
     public Future<T> queue(T message) {

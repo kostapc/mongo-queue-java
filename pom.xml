@@ -9,33 +9,35 @@
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
-    <url>https://github.com/infon-zed/mongo-queue-java</url>
+    <url>https://github.com/kostapc/mongo-queue-java</url>
 
     <scm>
-        <connection>scm:git:git://github.com/infon-zed/mongo-queue-java.git</connection>
-        <developerConnection>scm:git:ssh://github.com:infon-zed/mongo-queue-java.git</developerConnection>
-        <url>https://github.com/infon-zed/mongo-queue-java</url>
+        <connection>scm:git:https://github.com/kostapc/mongo-queue-java.git</connection>
+        <developerConnection>scm:git:https://github.com/kostapc/mongo-queue-java.git</developerConnection>
+        <url>https://github.com/kostapc/mongo-queue-java</url>
     </scm>
 
     <developers>
         <developer>
             <name>Infon Team</name>
             <email>opensource@infon.ru</email>
-            <organization>Infon</organization>
-            <organizationUrl>http://oss.infon.ru</organizationUrl>
+        </developer>
+        <developer>
+            <name>c0f3 labs</name>
+            <email>labs@c0f3.net</email>
         </developer>
     </developers>
 
-    <groupId>ru.infon.oss</groupId>
+    <groupId>net.c0f3.labs</groupId>
     <artifactId>queue-box</artifactId>
-    <version>0.0.3</version>
+    <version>0.1.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongo.driver.version>3.2.2</mongo.driver.version>
+        <mongo.driver.version>3.12.2</mongo.driver.version>
     </properties>
 
     <dependencies>
@@ -50,67 +52,58 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.8.7</version>
+            <version>2.10.3</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.9.3</version>
+            <version>1.9.4</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.13</version>
+            <version>1.7.30</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.1.3</version>
+            <version>1.2.3</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>1.6.1</version>
+            <version>3.15.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.6.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-		    <groupId>com.github.fakemongo</groupId>
-		    <artifactId>fongo</artifactId>
-		    <version>2.0.6</version>
-		    <scope>test</scope>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.13.0</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>integration</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>
 
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.8.1</version>
                 <configuration>
                   <source>1.8</source>
                   <target>1.8</target>
@@ -134,7 +127,10 @@
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-
+                <version>3.2.0</version>
+                <configuration>
+                    <source>8</source>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -147,6 +143,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>

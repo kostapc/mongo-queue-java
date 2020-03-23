@@ -45,7 +45,7 @@ public class MongoConnection {
             }
 
             String optionName = method.getName();
-            Class paramType = method.getParameterTypes()[0];
+            Class<?> paramType = method.getParameterTypes()[0];
             if(
                     !paramType.equals(Boolean.class) &&
                             !paramType.equals(Boolean.TYPE)  &&
@@ -141,11 +141,10 @@ public class MongoConnection {
             throw new RuntimeException("Mandatory property \"database\" not found");
         }
 
-        List<MongoCredential> credentials =  Collections.singletonList(
-                MongoCredential.createCredential(
+        MongoCredential credential = MongoCredential.createCredential(
                         mongoDBUser, mongoDBName, mongoDBPassword
-                )
         );
+
 
         WriteConcern writeConcern = WriteConcern.W1;
         writeConcern.withJournal(true);
@@ -156,7 +155,7 @@ public class MongoConnection {
 
         client = new MongoClient(
                 propertiesAdresses,
-                credentials, options
+                credential, options
         );
         mongoDB = client.getDatabase(mongoDBName);
     }
