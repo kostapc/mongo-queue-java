@@ -1,28 +1,35 @@
 package gaillard.mongo;
 
-import com.github.fakemongo.Fongo;
-import com.mongodb.*;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.ListIndexesIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-
-import java.net.UnknownHostException;
-import java.util.*;
-
+import net.c0f3.queuebox.MongoContainer;
+import net.c0f3.queuebox.MongoTestHelper;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-
-import org.junit.After;
-import org.junit.Test;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.infon.queuebox.mongo.MongoConnection;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@Testcontainers
 public class QueueTest {
+
+    @Container
+    private static final MongoContainer MONGO = new MongoContainer();
 
     private static final String COLLECTION_NAME = "messages";
 
@@ -30,40 +37,67 @@ public class QueueTest {
     private MongoQueueCore queue;
     private MongoDatabase db = null;
     private MongoClient client;
-    private boolean isMock = false;
 
-    @Before
-    public void setup() throws UnknownHostException {
-        MongoConnectionParams mongoParams = new MongoConnectionParams("mongodb.properties");
+    @BeforeEach
+    public void setup() {
+
+        MongoConnectionParams mongoParams = MongoTestHelper.createMongoParams(MONGO);
         MongoConnection connection = new MongoConnection(mongoParams.getProperties());
-    	try {
+        try {
             client = connection.getMongoClient();
             db = connection.getDatabase();
 
-			System.out.println("Using real Mongodb instance");
-		} catch (MongoTimeoutException e) {
-			System.out.println("MongoTimeoutException caught");
-		}
-    	if(db == null) {
-    		System.out.println("Reverting to embedded Fongo...");
-    		Fongo fongo = new Fongo("Test Queue DB");
-    		db = fongo.getDatabase(connection.getDatabaseName());
-    		isMock = true;
-    	}
-		collection = db.getCollection(COLLECTION_NAME);
+            System.out.println("Using real Mongodb instance");
+        } catch (MongoTimeoutException e) {
+            System.out.println("MongoTimeoutException caught");
+            e.printStackTrace();
+            Assertions.fail(e.getMessage());
+        }
+        collection = db.getCollection(COLLECTION_NAME);
         collection.drop();
 
         queue = new MongoQueueCore(collection);
     }
 
-    @After
+    @AfterEach
     public void closeConnection() {
         client.close();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void construct_nullCollection() {
-        new MongoQueueCore(null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new MongoQueueCore(null)
+        );
+    }
+
+    @Test
+    public void ensureGetIndexMultiplyCalls() {
+        queue.ensureGetIndex(new Document("type", 1).append("boo", -1));
+        queue.ensureGetIndex(new Document("type", 1).append("boo", -1));
+        queue.ensureGetIndex(new Document("type", 1).append("boo", -1));
+
+        final ListIndexesIterable<Document> indexes = collection.listIndexes();
+
+        Function<Document, Document> getIndexKeys = (index) -> {
+            Document byKey = (Document) index.get("key");
+            return (Document) byKey.get("key");
+        };
+        boolean indexFound = false;
+
+        for (Document doc : indexes) {
+            System.out.println(doc);
+            Document indexKeys = getIndexKeys.apply(doc);
+            if (indexKeys == null) {
+                return;
+            }
+            if (indexKeys.containsKey("payload.type") && indexKeys.containsKey("payload.boo")) {
+                indexFound = true;
+            }
+        }
+
+        Assertions.assertTrue(indexFound);
     }
 
     @Test
@@ -72,19 +106,10 @@ public class QueueTest {
         queue.ensureGetIndex(new Document("another.sub", 1));
 
         final ListIndexesIterable<Document> indexes = collection.listIndexes();
-        List<Document> indexInfo = new ArrayList<Document>();
+        List<Document> indexInfo = new ArrayList<>();
         indexInfo = indexes.into(indexInfo);
-        
-        // There is some strange behavior when using Fongo since it will return five indexes instead of four
-        // when using a real MongoDB. To pass this test, we will have to accomodate for that.
-        int expected = 0;
-        if(!isMock) {
-        	expected = 4;
-        } else {
-        	expected = 5;
-        }
-        
-        assertEquals(expected, indexInfo.size());
+
+        assertEquals(4, indexInfo.size());
 
         final Document expectedOne = new Document("running", 1)
                 .append("payload.type", 1)
@@ -110,7 +135,7 @@ public class QueueTest {
         queue.ensureGetIndex();
 
         final ListIndexesIterable<Document> indexes = collection.listIndexes();
-        List<Document> indexInfo = new ArrayList<Document>();
+        List<Document> indexInfo = new ArrayList<>();
         indexInfo = indexes.into(indexInfo);
 
         assertEquals(3, indexInfo.size());
@@ -122,38 +147,51 @@ public class QueueTest {
         assertEquals(expectedTwo, indexInfo.get(2).get("key"));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void ensureGetIndex_tooLongCollectionName() throws UnknownHostException {
-    	if(isMock) {
-    		// this does not work with Fongo, so we simulate the outcome
-    		throw new RuntimeException();
-    	}
+    @Test
+    public void ensureGetIndex_tooLongCollectionName() {
         //121 chars
         final String collectionName = "messages01234567890123456789012345678901234567890123456789"
                 + "012345678901234567890123456789012345678901234567890123456789012";
 
         queue = new MongoQueueCore(db.getCollection(collectionName));
-        queue.ensureGetIndex();
+        Assertions.assertThrows(
+                MongoCommandException.class,
+                () -> queue.ensureGetIndex()
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void ensureGetIndex_badBeforeSortValue() {
-        queue.ensureGetIndex(new Document("field", "NotAnInt"));
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.ensureGetIndex(new Document("field", "NotAnInt"))
+        );
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void ensureGetIndex_badAfterSortValue() {
-        queue.ensureGetIndex(new Document(), new Document("field", "NotAnInt"));
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.ensureGetIndex(new Document(), new Document("field", "NotAnInt"))
+        );
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void ensureGetIndex_nullBeforeSort() {
-        queue.ensureGetIndex(null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.ensureGetIndex(null)
+        );
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void ensureGetIndex_nullAfterSort() {
-        queue.ensureGetIndex(new Document(), null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.ensureGetIndex(new Document(), null)
+        );
+
     }
 
     @Test
@@ -174,19 +212,29 @@ public class QueueTest {
         assertEquals(expectedTwo, indexInfo.get(2).get("key"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void ensureCountIndex_badValue() {
-        queue.ensureCountIndex(new Document("field", "NotAnInt"), true);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.ensureCountIndex(new Document("field", "NotAnInt"), true)
+        );
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void ensureCountIndex_null() {
-        queue.ensureCountIndex(null, true);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.ensureCountIndex(null, true)
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void get_nullQuery() {
-        queue.get(null, Integer.MAX_VALUE);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.get(null, Integer.MAX_VALUE)
+        );
     }
 
     @Test
@@ -381,14 +429,20 @@ public class QueueTest {
         assertEquals(0, queue.count(new Document("key", 1)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void count_nullQuery() {
-        queue.count(null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.count(null)
+        );
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void count_runningNullQuery() {
-        queue.count(null, true);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.count(null, true)
+        );
     }
 
     @Test
@@ -399,20 +453,27 @@ public class QueueTest {
         queue.send(new Document());
 
         final Document result = queue.get(message, Integer.MAX_VALUE);
-        assertEquals(2, collection.count());
+        assertEquals(2, collection.countDocuments());
 
         queue.ack(result);
-        assertEquals(1, collection.count());
+        assertEquals(1, collection.countDocuments());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void ack_wrongIdType() {
-        queue.ack(new Document("id", false));
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.ack(new Document("id", false))
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void ack_null() {
-        queue.ack(null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.ack(null)
+        );
     }
 
     @Test
@@ -428,11 +489,12 @@ public class QueueTest {
         final Date timeBeforeAckSend = new Date();
         queue.ackSend(resultOne, new Document("key", 1), expectedEarliestGet, expectedPriority);
 
-        assertEquals(1, collection.count());
+        assertEquals(1, collection.countDocuments());
 
         // find one, i.e. the first document in this collection
         final Document actual = collection.find().first();
 
+        assert actual != null;
         final Date actualCreated = actual.getDate("created");
         assertTrue(actualCreated.compareTo(timeBeforeAckSend) >= 0 && actualCreated.compareTo(new Date()) <= 0);
 
@@ -447,29 +509,49 @@ public class QueueTest {
         assertEquals(expected, actual);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void ackSend_wrongIdType() {
-        queue.ackSend(new Document("id", 5), new Document());
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.ackSend(new Document("id", 5), new Document())
+        );
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void ackSend_nanPriority() {
-        queue.ackSend(new Document("id", ObjectId.get()), new Document(), new Date(), Double.NaN);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.ackSend(new Document("id", ObjectId.get()), new Document(), new Date(), Double.NaN)
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void ackSend_nullMessage() {
-        queue.ackSend(null, new Document());
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.ackSend(null, new Document())
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void ackSend_nullPayload() {
-        queue.ackSend(new Document("id", ObjectId.get()), null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.ackSend(new Document("id", ObjectId.get()), null)
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void ackSend_nullEarliestGet() {
-        queue.ackSend(new Document("id", ObjectId.get()), new Document(), null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.ackSend(new Document("id", ObjectId.get()), new Document(), null)
+        );
+
     }
 
     @Test
@@ -485,11 +567,12 @@ public class QueueTest {
         final Date timeBeforeRequeue = new Date();
         queue.requeue(resultOne, expectedEarliestGet, expectedPriority);
 
-        assertEquals(1, collection.count());
+        assertEquals(1, collection.countDocuments());
 
         // find one, i.e. the first document in this collection
         final Document actual = collection.find().first();
 
+        assert actual != null;
         final Date actualCreated = actual.getDate("created");
         assertTrue(actualCreated.compareTo(timeBeforeRequeue) >= 0 && actualCreated.compareTo(new Date()) <= 0);
 
@@ -504,24 +587,40 @@ public class QueueTest {
         assertEquals(expected, actual);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void requeue_wrongIdType() {
-        queue.requeue(new Document("id", new Document()));
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.requeue(new Document("id", new Document()))
+        );
+
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void requeue_nanPriority() {
-        queue.requeue(new Document("id", ObjectId.get()), new Date(), Double.NaN);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.requeue(new Document("id", ObjectId.get()), new Date(), Double.NaN)
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void requeue_nullMessage() {
-        queue.requeue(null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.requeue(null)
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void requeue_nullEarliestGet() {
-        queue.requeue(new Document("id", ObjectId.get()), null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.requeue(new Document("id", ObjectId.get()), null)
+        );
+
     }
 
     @Test
@@ -533,11 +632,12 @@ public class QueueTest {
         final Date timeBeforeSend = new Date();
         queue.send(message, expectedEarliestGet, expectedPriority);
 
-        assertEquals(1, collection.count());
+        assertEquals(1, collection.countDocuments());
 
         // find one, i.e. the first document in this collection
         final Document actual = collection.find().first();
 
+        assert actual != null;
         final Date actualCreated = actual.getDate("created");
         assertTrue(actualCreated.compareTo(timeBeforeSend) >= 0 && actualCreated.compareTo(new Date()) <= 0);
 
@@ -552,18 +652,28 @@ public class QueueTest {
         assertEquals(expected, actual);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void send_nanPriority() {
-        queue.send(new Document("id", ObjectId.get()), new Date(), Double.NaN);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> queue.send(new Document("id", ObjectId.get()), new Date(), Double.NaN)
+        );
+
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void send_nullMessage() {
-        queue.send(null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.send(null)
+        );
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void send_nullEarliestGet() {
-        queue.send(new Document("id", ObjectId.get()), null);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> queue.send(new Document("id", ObjectId.get()), null)
+        );
     }
 }

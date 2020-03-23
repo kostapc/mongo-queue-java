@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
  * 2017 Infon ZED
  **/
 public class ExampleWithMain {
+
     public static void main(String[] args) throws InterruptedException, IOException {
         final String defaultSource = "just_source";
         final String defaultDestination = "just_destination";

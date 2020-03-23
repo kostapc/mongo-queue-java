@@ -1,16 +1,18 @@
 package ru.infon.queue.mongo;
 
 import gaillard.mongo.MongoConnectionParams;
+import net.c0f3.queuebox.MongoContainer;
+import net.c0f3.queuebox.MongoTestHelper;
 import org.bson.Document;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.infon.queuebox.MessageContainer;
 import ru.infon.queuebox.QueueConsumer;
 import ru.infon.queuebox.mongo.MongoConnection;
 import ru.infon.queuebox.mongo.MongoRoutedQueueBox;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,18 +21,26 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 /**
  * 07.06.2017
+ *
  * @author KostaPC
  * 2017 Infon ZED
  **/
+@Testcontainers
 public class MongoQueueBoxTest {
+
+    @Container
+    private static final MongoContainer MONGO = new MongoContainer();
 
     private MongoConnectionParams mongoParams;
 
-    @Before
-    public void setup() throws UnknownHostException {
-        mongoParams = new MongoConnectionParams("mongodb.properties");
+    @BeforeEach
+    public void setup() {
+        mongoParams = MongoTestHelper.createMongoParams(MONGO);
         MongoConnection mongoConnection = new MongoConnection(mongoParams.getProperties());
         mongoConnection.getMongoCollection(Document.class).deleteMany(new Document());
     }
@@ -47,17 +57,17 @@ public class MongoQueueBoxTest {
         );
         queueBox.start();
         Map<Integer, JustPojoRouted> sendPojos = new HashMap<>();
-        final List<Future> futures = new ArrayList<>();
+        final List<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < iterations; i++) {
             JustPojoRouted pojo = new JustPojoRouted(i, "_" + i + "_!");
             pojo.setSource(defaultSource);
             pojo.setDestination(defaultDestination);
-            sendPojos.put(i,pojo);
+            sendPojos.put(i, pojo);
             futures.add(queueBox.queue(pojo));
         }
 
         long count = 0;
-        while (count<futures.size()) {
+        while (count < futures.size()) {
             count = futures.stream().filter(Future::isDone).count();
         }
         System.out.println("ALL INSERTED!");
@@ -69,9 +79,9 @@ public class MongoQueueBoxTest {
             public void onPacket(MessageContainer<JustPojoRouted> message) {
                 JustPojoRouted recvPojo = message.getMessage();
                 JustPojoRouted sendPojo = sendPojos.get(recvPojo.getIntValue());
-                Assert.assertNotNull(recvPojo);
-                Assert.assertNotNull(sendPojo);
-                Assert.assertEquals(sendPojo, recvPojo);
+                assertNotNull(recvPojo);
+                assertNotNull(sendPojo);
+                assertEquals(sendPojo, recvPojo);
                 message.done();
                 door.countDown();
             }
@@ -84,11 +94,11 @@ public class MongoQueueBoxTest {
 
         door.await(60000, TimeUnit.MILLISECONDS);
 
-        Assert.assertEquals(0,door.getCount());
+        assertEquals(0, door.getCount());
         MongoConnection mongoConnection = new MongoConnection(mongoParams.getProperties());
-        Assert.assertEquals(
+        assertEquals(
                 0,
-                mongoConnection.getMongoCollection(Document.class).count()
+                mongoConnection.getMongoCollection(Document.class).countDocuments()
         );
 
         System.out.println("ALL DONE!");

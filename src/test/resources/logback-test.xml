@@ -7,9 +7,6 @@
     </appender>
 
     <logger name="org" level="INFO" />
-    <logger name="com.github.fakemongo" level="INFO" />
-    <logger name="com.mongodb.FongoDBCollection" level="INFO" />
-    <logger name="com.mongodb.FongoDB" level="INFO" />
 
     <root level="debug">
         <appender-ref ref="STDOUT" />

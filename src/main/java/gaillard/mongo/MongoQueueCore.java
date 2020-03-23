@@ -5,6 +5,7 @@ import com.mongodb.client.model.*;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -203,7 +204,7 @@ public final class MongoQueueCore {
             completeQuery.append("payload." + field.getKey(), field.getValue());
         }
 
-        return collection.count(completeQuery);
+        return collection.countDocuments(completeQuery);
     }
 
     /**
@@ -223,7 +224,7 @@ public final class MongoQueueCore {
             completeQuery.append("payload." + field.getKey(), field.getValue());
         }
 
-        return collection.count(completeQuery);
+        return collection.countDocuments(completeQuery);
     }
 
     /**
@@ -381,25 +382,18 @@ public final class MongoQueueCore {
         collection.insertOne(message);
     }
 
-    private void ensureIndex(final Document index) {
+    private void ensureIndex(final Document indexDoc) {
         for (int i = 0; i < 5; ++i) {
-            for (String name = UUID.randomUUID().toString(); name.length() > 0; name = name.substring(0, name.length() - 1)) {
-                //creating an index with the same name and different spec does nothing.
-                //creating an index with different name and same spec does nothing.
-                //so we use any generated name, and then find the right spec after we have called, and just go with that name.
-
-                IndexOptions iOpts = new IndexOptions().background(true).name(name);
-                collection.createIndex(index, iOpts);
-
-                for (final Document existingIndex : collection.listIndexes()) {
-
-                    if (existingIndex.get("key").equals(index)) {
-                        return;
-                    }
+            for (final Document existingIndex : collection.listIndexes()) {
+                if (existingIndex.get("key").equals(indexDoc)) {
+                    return;
                 }
             }
+            String name = UUID.randomUUID().toString();
+            IndexOptions iOpts = new IndexOptions().background(true).name(name);
+            collection.createIndex(indexDoc, iOpts);
         }
 
-        throw new RuntimeException("couldnt create index after 5 attempts");
+        throw new RuntimeException("could not create index after 5 attempts");
     }
 }
