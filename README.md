@@ -2,9 +2,9 @@
 
 Async java message queue using MongoDB as a backend.    
 
-This fork use the latest MongoDB version with the latest Java Driver (version 3.2.2) and contains wrapper that hide MongoDB driver API and allow queue plain java objects.
+This fork use the latest MongoDB version with the latest Java Driver and contains wrapper that hide MongoDB driver API and allow using plain java objects in queue.
 
-Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to be used in the unit tests. Fongo is a standalone mock server simulating 90% of MongoDB completely developed in Java. While it aims to be 100% compatible, this is obviously not easy to achieve and some incompatibilities exist which are also reflected in two unit tests here.
+Unit tests based on real MongoDB with testcontainers.
 
 ## issues and feature requests
 
@@ -112,23 +112,13 @@ to your project's `pom.xml` file such as:
 
 Found in the [source](/src/main/java/gaillard/mongo/MongoQueueCore.java) itself, take a look!
 
-## Contact
-
-Developers may be contacted at:
-
- * [Pull Requests](https://github.com/infon-zed/mongo-queue-java/pulls)
- * [Issues](https://github.com/infon-zed/mongo-queue-java/issues)
-
 ## Project Build
 
-Install and start [mongodb](http://www.mongodb.org) or use [docker container](https://hub.docker.com/_/mongo/)
-With a checkout of the code get [Maven](http://maven.apache.org) in your PATH and run:
+For testing install docker.
 
 ```bash
 mvn clean install
 ```
-
-Alternatively the `mvn clean install` can also be run without a local MongoDB thanks to Fongo.
 
 ## We must know our heroes!
 
