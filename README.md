@@ -8,7 +8,7 @@ Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to b
 
 ## issues and feature requests
 
- * security issues - [hackerone](https://hackerone.com)
+ * security issues - [hackerone](https://hackerone.com/c0f3-labs)
  * other issues and features - [github issues](https://github.com/c0f3/mongo-queue-java/issues)
 
 ## Features
