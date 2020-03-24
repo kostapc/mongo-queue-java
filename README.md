@@ -1,13 +1,15 @@
 # QueueBox - async queue engine based on MongoDB
 
-[![Build Status](https://travis-ci.org/gaillard/mongo-queue-java.png)](https://travis-ci.org/gaillard/mongo-queue-java)
-
 Async java message queue using MongoDB as a backend.    
 
 This fork use the latest MongoDB version with the latest Java Driver (version 3.2.2) and contains wrapper that hide MongoDB driver API and allow queue plain java objects.
 
 Fake MongoDB added to project ([Fongo](https://github.com/fakemongo/fongo)) to be used in the unit tests. Fongo is a standalone mock server simulating 90% of MongoDB completely developed in Java. While it aims to be 100% compatible, this is obviously not easy to achieve and some incompatibilities exist which are also reflected in two unit tests here.
 
+## issues and feature requests
+
+ * security issues - [hackerone](https://hackerone.com)
+ * other issues and features - [github issues](https://github.com/c0f3/mongo-queue-java/issues)
 
 ## Features
 
